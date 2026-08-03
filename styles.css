@@ -1043,7 +1043,7 @@ fieldset legend {
 .crumbs svg { width: 14px; height: 14px; }
 
 /* --------------------------------------------------------------------------
-   22. SITE HEADER / NAV  (no-JS responsive)
+   22. SITE HEADER / NAV  (hamburger disclosure on mobile, no JS required)
    -------------------------------------------------------------------------- */
 .site-header {
   position: sticky;
@@ -1055,18 +1055,62 @@ fieldset legend {
 }
 .site-header__inner {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-3) var(--space-5);
+  justify-content: space-between;
+  gap: var(--space-3);
   padding-block: var(--space-3);
 }
-.brand { display: inline-flex; align-items: center; gap: var(--space-3); margin-right: auto; }
+.brand { display: inline-flex; align-items: center; gap: var(--space-3); }
 .brand__mark { width: 44px; height: 44px; flex-shrink: 0; }
 .brand__name { font-family: var(--font-heading); font-weight: var(--fw-extra); font-size: 1.18rem; color: var(--color-heading); line-height: 1.05; letter-spacing: -0.02em; }
 .brand__sub  { display: block; font-size: 0.7rem; font-weight: var(--fw-bold); letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-primary); margin-top: 2px; }
 
-.nav { order: 3; flex-basis: 100%; }
-.nav__list { display: flex; flex-wrap: wrap; gap: var(--space-1); justify-content: center; }
+/* Hamburger toggle — a plain checkbox + label, toggled via the :checked
+   sibling selector below. Kept as a checkbox rather than <details> because
+   closed <details> content collapses to zero width internally in modern
+   browsers in a way author CSS cannot override, which breaks "always show
+   the menu on desktop". The checkbox stays keyboard-focusable (hidden with
+   .sr-only, not display:none) and needs zero JavaScript to open or close;
+   script.js only adds an auto-close-on-link-click convenience on top. */
+.nav-toggle-input:checked ~ .nav-toggle .nav-toggle__icon--open  { display: none; }
+.nav-toggle-input:checked ~ .nav-toggle .nav-toggle__icon--close { display: block; }
+.nav-toggle-input:focus-visible ~ .nav-toggle { outline: 3px solid var(--color-focus); outline-offset: 2px; }
+.nav-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px; height: 44px;
+  border-radius: var(--radius-pill);
+  color: var(--color-heading);
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+.nav-toggle:hover { background: var(--color-primary-soft); color: var(--color-primary); }
+.nav-toggle__icon { width: 24px; height: 24px; }
+.nav-toggle__icon--close { display: none; }
+
+/* Mobile dropdown panel */
+.nav {
+  display: none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: var(--header-h);
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-4) var(--gutter) var(--space-5);
+  max-height: calc(100vh - var(--header-h));
+  overflow-y: auto;
+}
+.nav-toggle-input:checked ~ .nav { display: block; }
+.nav__list { flex-direction: column; align-items: stretch; gap: var(--space-1); }
+.nav__link { width: 100%; padding: var(--space-4); font-size: var(--fs-base); }
+.header-cta { margin-top: var(--space-4); }
+.header-cta .btn { width: 100%; min-height: 48px; padding: 0.85rem 1.2rem; }
+
+.nav__list { display: flex; gap: var(--space-1); }
 .nav__link {
   display: inline-flex;
   align-items: center;
@@ -1081,14 +1125,25 @@ fieldset legend {
 .nav__link:hover { color: var(--color-primary); background: var(--color-primary-soft); }
 .nav__link.is-active { color: var(--color-primary-darker); background: var(--color-primary-tint); }
 
-.header-cta { order: 2; }
-.header-cta .btn { min-height: 44px; padding: 0.6rem 1.2rem; }
-
 @media (min-width: 960px) {
-  .site-header__inner { flex-wrap: nowrap; gap: var(--space-6); }
-  .nav { order: 0; flex-basis: auto; margin-inline: auto; }
-  .nav__list { flex-wrap: nowrap; }
-  .header-cta { order: 0; }
+  .nav-toggle { display: none; }
+  .nav {
+    display: flex !important;
+    position: static;
+    align-items: center;
+    gap: var(--space-6);
+    background: none;
+    border: 0;
+    box-shadow: none;
+    padding: 0;
+    max-height: none;
+    overflow: visible;
+    margin-inline: auto;
+  }
+  .nav__list { flex-direction: row; align-items: center; }
+  .nav__link { width: auto; padding: 0.55rem 0.9rem; font-size: var(--fs-sm); }
+  .header-cta { margin-top: 0; }
+  .header-cta .btn { width: auto; min-height: 44px; padding: 0.6rem 1.2rem; }
 }
 
 /* --------------------------------------------------------------------------

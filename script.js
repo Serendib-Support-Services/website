@@ -222,3 +222,57 @@
     });
   }
 })();
+
+/*
+  Mobile nav toggle — pure convenience layer on top of the checkbox-driven
+  menu in styles.css section 22. The menu already opens and closes with zero
+  JS via the checkbox's native :checked state; this just unchecks it once a
+  link inside is clicked, so it doesn't stay open after navigating. Kept
+  independent of the GSAP block above so it still runs if GSAP fails to load.
+*/
+(function () {
+  "use strict";
+  var toggle = document.getElementById("nav-toggle");
+  var nav = document.querySelector(".nav");
+  if (!toggle || !nav) return;
+  nav.addEventListener("click", function (event) {
+    if (event.target.closest("a")) {
+      toggle.checked = false;
+    }
+  });
+
+  // Entrance animation for the mobile dropdown only — a pure enhancement on
+  // top of the CSS show/hide above. If GSAP is missing or the user prefers
+  // reduced motion, the menu still opens instantly via CSS; nothing here is
+  // load-bearing. Only the opening is animated (not closing): the panel
+  // closes instantly, either via the auto-close above or the user
+  // re-tapping the hamburger, which reads as a natural, snappy dismissal.
+  if (typeof window.gsap === "undefined") return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  var gsap = window.gsap;
+  var revealItems = nav.querySelectorAll(".nav__list > li, .header-cta");
+
+  toggle.addEventListener("change", function () {
+    if (!toggle.checked) return;
+    if (window.matchMedia("(min-width: 960px)").matches) return; // desktop nav is always visible — nothing to animate
+
+    gsap.fromTo(
+      nav,
+      { opacity: 0, y: -14 },
+      { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" }
+    );
+    gsap.fromTo(
+      revealItems,
+      { opacity: 0, y: -8 },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.35,
+        ease: "power2.out",
+        stagger: 0.05,
+        delay: 0.05,
+      }
+    );
+  });
+})();
