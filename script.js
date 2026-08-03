@@ -276,3 +276,55 @@
     );
   });
 })();
+
+/*
+  Auto-hiding header on scroll (mobile only — see the min-width:960px
+  override in styles.css, which keeps the desktop header always visible).
+  Scrolling down past a small threshold slides the header up and out of
+  view; scrolling up brings it straight back. If the mobile menu happens to
+  be open when a hide is triggered, it's closed at the same time — the menu
+  is a fixed-position child of the header (so it moves with it either way),
+  and closing it avoids the menu panel re-anchoring itself flush against
+  the top of the viewport with no header above it.
+
+  This one genuinely needs JS (there's no CSS-only way to read scroll
+  direction), so if JS fails to load the header simply stays put, sticky
+  at the top as it was before this feature existed — never broken, just
+  without this convenience.
+*/
+(function () {
+  "use strict";
+  var header = document.querySelector(".site-header");
+  var navToggle = document.getElementById("nav-toggle");
+  if (!header) return;
+
+  var HIDE_AFTER = 80; // px scrolled before the header is allowed to hide
+  var lastY = window.scrollY;
+  var ticking = false;
+
+  function onScroll() {
+    var y = window.scrollY;
+    var goingDown = y > lastY;
+
+    if (y < HIDE_AFTER || !goingDown) {
+      header.classList.remove("site-header--hidden");
+    } else {
+      header.classList.add("site-header--hidden");
+      if (navToggle) navToggle.checked = false;
+    }
+
+    lastY = y;
+    ticking = false;
+  }
+
+  window.addEventListener(
+    "scroll",
+    function () {
+      if (!ticking) {
+        requestAnimationFrame(onScroll);
+        ticking = true;
+      }
+    },
+    { passive: true }
+  );
+})();
