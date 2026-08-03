@@ -285,7 +285,10 @@
   be open when a hide is triggered, it's closed at the same time — the menu
   is a fixed-position child of the header (so it moves with it either way),
   and closing it avoids the menu panel re-anchoring itself flush against
-  the top of the viewport with no header above it.
+  the top of the viewport with no header above it. When GSAP is available,
+  that close fades/slides the menu out first rather than snapping it away
+  via the checkbox's instant display:none; without GSAP (or with reduced
+  motion) it falls back to the plain instant close.
 
   This one genuinely needs JS (there's no CSS-only way to read scroll
   direction), so if JS fails to load the header simply stays put, sticky
@@ -296,24 +299,77 @@
   "use strict";
   var header = document.querySelector(".site-header");
   var navToggle = document.getElementById("nav-toggle");
+  var nav = document.querySelector(".nav");
   if (!header) return;
 
   var HIDE_AFTER = 80; // px scrolled before the header is allowed to hide
+  var TRIGGER_DISTANCE = 10; // px of *consistent* movement needed before acting — absorbs the
+  // small direction wobbles real touch/trackpad momentum scrolling produces, rather than
+  // reacting to every single-frame delta (which flickered on real devices during testing)
   var lastY = window.scrollY;
+  var directionAccum = 0;
+  var lastDirection = 0; // -1 up, 1 down, 0 none yet
   var ticking = false;
+  var closingMenu = false;
 
-  function onScroll() {
-    var y = window.scrollY;
-    var goingDown = y > lastY;
+  function canAnimate() {
+    return (
+      typeof window.gsap !== "undefined" &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    );
+  }
 
-    if (y < HIDE_AFTER || !goingDown) {
-      header.classList.remove("site-header--hidden");
-    } else {
-      header.classList.add("site-header--hidden");
-      if (navToggle) navToggle.checked = false;
+  function closeMenu() {
+    if (!navToggle || !navToggle.checked || closingMenu) return;
+
+    if (!nav || !canAnimate()) {
+      navToggle.checked = false;
+      return;
     }
 
+    closingMenu = true;
+    window.gsap.to(nav, {
+      opacity: 0,
+      y: -10,
+      duration: 0.22,
+      ease: "power1.in",
+      onComplete: function () {
+        navToggle.checked = false;
+        window.gsap.set(nav, { clearProps: "opacity,transform" });
+        closingMenu = false;
+      },
+    });
+  }
+
+  function onScroll() {
+    var y = Math.max(0, window.scrollY); // clamp iOS's negative overscroll/rubber-band values
+    var delta = y - lastY;
     lastY = y;
+
+    if (y < HIDE_AFTER) {
+      header.classList.remove("site-header--hidden");
+      directionAccum = 0;
+      lastDirection = 0;
+      ticking = false;
+      return;
+    }
+
+    var direction = delta > 0 ? 1 : delta < 0 ? -1 : lastDirection;
+    if (direction !== lastDirection) {
+      directionAccum = 0; // direction changed — require fresh consistent movement
+      lastDirection = direction;
+    }
+    directionAccum += Math.abs(delta);
+
+    if (directionAccum >= TRIGGER_DISTANCE) {
+      if (direction === 1) {
+        header.classList.add("site-header--hidden");
+        closeMenu();
+      } else if (direction === -1) {
+        header.classList.remove("site-header--hidden");
+      }
+    }
+
     ticking = false;
   }
 
