@@ -1,0 +1,72 @@
+/* MediCare+ — Color tokens
+   Trustworthy, sterile-clean, calming blue.
+   Status colors must ALWAYS pair with text + icon — never color alone. */
+
+:root {
+  /* ---- Brand blues ---- */
+  --blue-700: #005280; /* primary active */
+  --blue-600: #006399; /* primary hover */
+  --blue-500: #0077B6; /* Med Blue — primary */
+  --blue-300: #48CAE4; /* Light Blue — secondary */
+  --blue-200: #90E0EF; /* Pale Cyan — tertiary */
+  --blue-050: #F0F7FF; /* tint surface / hover */
+  --blue-100: #E0EFFF; /* tint active */
+
+  /* ---- Accent ---- */
+  --accent: #FFD23F;      /* Amber accent — main menu, highlights, active nav */
+  --accent-soft: #FFF3CC; /* accent tint surface */
+
+  /* ---- Neutrals (slate) ---- */
+  --ink-900: #0F172A; /* primary text */
+  --ink-700: #334155;
+  --ink-600: #475569; /* secondary text */
+  --ink-400: #94A3B8; /* placeholder / disabled text */
+  --ink-300: #CBD5E1; /* input borders */
+  --ink-200: #E2E8F0; /* borders / dividers */
+  --ink-100: #F1F5F9;
+  --ink-050: #F8FAFC; /* disabled surface */
+  --white:   #FFFFFF;
+
+  /* ---- Page / surface ---- */
+  --bg-page:    #FAFCFF; /* very pale blue-white */
+  --surface:    #FFFFFF; /* cards, panels, forms */
+
+  /* ---- Semantic status ---- */
+  --success:        #059669;
+  --success-bg:     #ECFDF5;
+  --success-border: #A7F3D0;
+  --warning:        #D97706;
+  --warning-bg:     #FFFBEB;
+  --warning-border: #FDE68A;
+  --error:          #DC2626;
+  --error-bg:       #FEF2F2;
+  --error-border:   #FECACA;
+  --error-hover:    #B91C1C;
+  --error-active:   #991B1B;
+  --info:           #0077B6;
+  --info-bg:        #F0F7FF;
+  --info-border:    #90E0EF;
+
+  /* ---- Semantic aliases ---- */
+  --color-primary:        var(--blue-500);
+  --color-primary-hover:  var(--blue-600);
+  --color-primary-active: var(--blue-700);
+  --color-secondary:      var(--blue-300);
+  --color-tertiary:       var(--blue-200);
+
+  --text-primary:   var(--ink-900);
+  --text-secondary: var(--ink-600);
+  --text-muted:     var(--ink-400);
+  --text-on-primary: var(--white);
+  --text-link:      var(--blue-500);
+
+  --border-default: var(--ink-200);
+  --border-input:   var(--ink-300);
+  --border-strong:  var(--blue-500);
+
+  --surface-card:   var(--surface);
+  --surface-page:   var(--bg-page);
+  --surface-tint:   var(--blue-050);
+  --surface-tint-strong: var(--blue-100);
+  --surface-disabled: var(--ink-050);
+}

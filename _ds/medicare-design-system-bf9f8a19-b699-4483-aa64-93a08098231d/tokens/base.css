@@ -1,0 +1,26 @@
+/* MediCare+ — Base resets and page defaults */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--surface-page);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-lh);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-headline);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+a { color: var(--text-link); }
+
+code, kbd, samp { font-family: var(--font-mono); }
+
+::selection { background: var(--surface-tint-strong); }

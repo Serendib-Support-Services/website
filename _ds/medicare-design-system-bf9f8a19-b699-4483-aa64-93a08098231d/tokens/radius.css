@@ -1,0 +1,11 @@
+/* MediCare+ — Border radius tokens
+   Default 8px — professional and approachable. */
+
+:root {
+  --radius-none: 0px;   /* table cells, dividers */
+  --radius-sm: 4px;     /* chips, badges, status */
+  --radius-md: 8px;     /* buttons, inputs, cards, panels (default) */
+  --radius-lg: 12px;    /* modals, dialogs, large panels */
+  --radius-xl: 16px;    /* onboarding cards, hero containers */
+  --radius-full: 9999px;/* avatars, status dots, pill badges */
+}

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://www.serendibsupportservices.com.au/sitemap.xml

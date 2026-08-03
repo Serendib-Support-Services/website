@@ -1,0 +1,21 @@
+# Secrets & local environment
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Editor/IDE
+.vscode/
+.idea/
+.claude/
+
+# Local scratch/log output
+*.log
+
+# Personal notes not part of the website
+about_me.md

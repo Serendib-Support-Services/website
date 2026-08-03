@@ -1,0 +1,21 @@
+/* MediCare+ — Elevation tokens
+   Subtle, clean shadows for dense clinical interfaces. Gentle only. */
+
+:root {
+  --shadow-subtle:
+    0 1px 3px rgba(0,0,0,0.06),
+    0 1px 2px rgba(0,0,0,0.04);
+  --shadow-medium:
+    0 4px 12px rgba(0,0,0,0.07),
+    0 1px 3px rgba(0,0,0,0.04);
+  --shadow-large:
+    0 12px 32px rgba(0,0,0,0.08),
+    0 4px 8px rgba(0,0,0,0.04);
+  --shadow-overlay:
+    0 20px 48px rgba(0,0,0,0.12),
+    0 8px 16px rgba(0,0,0,0.06);
+
+  /* ---- Focus rings (high visibility for keyboard / AT) ---- */
+  --ring-focus: 0 0 0 2px #FAFCFF, 0 0 0 6px #0077B6;
+  --ring-error: 0 0 0 2px #FAFCFF, 0 0 0 6px #DC2626;
+}

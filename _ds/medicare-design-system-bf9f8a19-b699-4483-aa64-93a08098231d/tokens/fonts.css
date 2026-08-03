@@ -1,0 +1,6 @@
+/* MediCare+ — Webfonts
+   Figtree (headlines), Open Sans (body), IBM Plex Mono (codes/IDs).
+   Loaded from Google Fonts. If you have licensed font binaries,
+   replace these @import lines with local @font-face rules. */
+
+@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=Open+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap');

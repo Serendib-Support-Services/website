@@ -1,0 +1,115 @@
+/* MediCare+ — Typography tokens
+   Figtree headlines · Open Sans body · IBM Plex Mono for codes/IDs/dosages. */
+
+:root {
+  --font-headline: 'Figtree', system-ui, -apple-system, sans-serif;
+  --font-body: 'Open Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', monospace;
+
+  /* ---- Weights ---- */
+  --fw-regular: 400; /* @kind font */
+  --fw-medium: 500; /* @kind font */
+  --fw-semibold: 600; /* @kind font */
+  --fw-bold: 700; /* @kind font */
+
+  /* ---- Type scale (size / line-height / tracking) ---- */
+  --text-display-size: 34px;
+  --text-display-lh: 1.2;
+  --text-display-ls: 0.02em;
+
+  --text-headline-size: 26px;
+  --text-headline-lh: 1.3;
+  --text-headline-ls: 0.01em;
+
+  --text-subhead-size: 20px;
+  --text-subhead-lh: 1.4;
+
+  --text-body-lg-size: 18px;
+  --text-body-lg-lh: 1.6;
+
+  --text-body-size: 16px;
+  --text-body-lh: 1.6;
+
+  --text-body-sm-size: 14px;
+  --text-body-sm-lh: 1.55;
+
+  --text-caption-size: 12px;
+  --text-caption-lh: 1.5;
+  --text-caption-ls: 0.01em;
+
+  --text-overline-size: 11px;
+  --text-overline-lh: 1.4;
+  --text-overline-ls: 0.08em;
+
+  --text-code-size: 14px;
+  --text-code-lh: 1.6;
+}
+
+/* ---- Type utility classes (optional helpers) ---- */
+.mc-display {
+  font-family: var(--font-headline);
+  font-size: var(--text-display-size);
+  line-height: var(--text-display-lh);
+  letter-spacing: var(--text-display-ls);
+  font-weight: var(--fw-bold);
+  color: var(--text-primary);
+}
+.mc-headline {
+  font-family: var(--font-headline);
+  font-size: var(--text-headline-size);
+  line-height: var(--text-headline-lh);
+  letter-spacing: var(--text-headline-ls);
+  font-weight: var(--fw-bold);
+  color: var(--text-primary);
+}
+.mc-subhead {
+  font-family: var(--font-headline);
+  font-size: var(--text-subhead-size);
+  line-height: var(--text-subhead-lh);
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+}
+.mc-body-lg {
+  font-family: var(--font-body);
+  font-size: var(--text-body-lg-size);
+  line-height: var(--text-body-lg-lh);
+  font-weight: var(--fw-regular);
+  color: var(--text-primary);
+}
+.mc-body {
+  font-family: var(--font-body);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-lh);
+  font-weight: var(--fw-regular);
+  color: var(--text-primary);
+}
+.mc-body-sm {
+  font-family: var(--font-body);
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-lh);
+  font-weight: var(--fw-regular);
+  color: var(--text-secondary);
+}
+.mc-caption {
+  font-family: var(--font-body);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-lh);
+  letter-spacing: var(--text-caption-ls);
+  font-weight: var(--fw-medium);
+  color: var(--text-secondary);
+}
+.mc-overline {
+  font-family: var(--font-body);
+  font-size: var(--text-overline-size);
+  line-height: var(--text-overline-lh);
+  letter-spacing: var(--text-overline-ls);
+  font-weight: var(--fw-bold);
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.mc-code {
+  font-family: var(--font-mono);
+  font-size: var(--text-code-size);
+  line-height: var(--text-code-lh);
+  font-weight: var(--fw-regular);
+}
