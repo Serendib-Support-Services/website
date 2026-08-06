@@ -93,7 +93,7 @@
     outline:none; border-color:var(--color-primary); background:var(--color-surface);
     box-shadow:0 0 0 4px rgba(47,110,91,.16);
   }
-  textarea.control{ min-height:64px; resize:vertical; line-height:1.5; }
+  textarea.control{ min-height:120px; resize:vertical; line-height:1.5; }
   .control.has-error{ border-color:var(--color-error); }
   .control.has-error:focus{ box-shadow:0 0 0 4px rgba(188,58,43,.14); }
 
@@ -157,11 +157,31 @@
   .btn--icon:disabled{ opacity:.35; cursor:not-allowed; }
   .btn--icon svg{ width:17px; height:17px; }
 
-  /* ---- shift rows ---- */
-  #shiftList{ display:grid; gap:var(--space-4); }
-  .shift-row{
+  /* ---- participant groups & shift entries ---- */
+  #participantList{ display:grid; gap:var(--space-5); }
+  .participant-group{
     background:var(--color-surface-alt); border:1px solid var(--color-border);
     border-radius:var(--radius-lg); padding:clamp(1rem,3vw,1.4rem);
+    display:grid; gap:var(--space-4);
+    opacity:1; transform:translateY(0) scale(1);
+    max-height:2600px;
+    transition:opacity var(--transition-slow) var(--ease-soft), transform var(--transition-slow) var(--ease-soft),
+               max-height var(--transition-slow) var(--ease-soft), padding var(--transition-slow) var(--ease-soft),
+               margin var(--transition-slow) var(--ease-soft), border-color var(--transition-slow);
+    overflow:hidden;
+  }
+  .participant-group.entering{ opacity:0; transform:translateY(-10px) scale(.98); }
+  .participant-group.leaving{
+    opacity:0; transform:translateY(-8px) scale(.97);
+    max-height:0; padding-top:0; padding-bottom:0; margin-bottom:calc(-1 * var(--space-5)); border-color:transparent;
+  }
+  .participant-group__head{ display:flex; align-items:center; justify-content:space-between; gap:var(--space-3); }
+  .participant-group__title{ font-family:var(--font-heading); font-weight:var(--fw-extra); font-size:var(--fs-sm); color:var(--color-primary-darker); text-transform:uppercase; letter-spacing:.06em; }
+
+  .shift-entries{ display:grid; gap:var(--space-3); }
+  .shift-entry{
+    background:var(--color-surface); border:1px solid var(--color-border-soft);
+    border-radius:var(--radius-md); padding:clamp(.9rem,2.5vw,1.15rem);
     display:grid; gap:var(--space-4);
     opacity:1; transform:translateY(0) scale(1);
     max-height:900px;
@@ -170,14 +190,13 @@
                margin var(--transition-slow) var(--ease-soft), border-color var(--transition-slow);
     overflow:hidden;
   }
-  .shift-row.entering{ opacity:0; transform:translateY(-10px) scale(.98); }
-  .shift-row.leaving{
-    opacity:0; transform:translateY(-8px) scale(.97);
-    max-height:0; padding-top:0; padding-bottom:0; margin-bottom:calc(-1 * var(--space-4)); border-color:transparent;
+  .shift-entry.entering{ opacity:0; transform:translateY(-8px) scale(.98); }
+  .shift-entry.leaving{
+    opacity:0; transform:translateY(-6px) scale(.97);
+    max-height:0; padding-top:0; padding-bottom:0; margin-bottom:calc(-1 * var(--space-3)); border-color:transparent;
   }
-
-  .shift-row__head{ display:flex; align-items:center; justify-content:space-between; gap:var(--space-3); }
-  .shift-row__title{ font-family:var(--font-heading); font-weight:var(--fw-bold); font-size:var(--fs-sm); color:var(--color-primary-darker); text-transform:uppercase; letter-spacing:.06em; }
+  .shift-entry__head{ display:flex; align-items:center; justify-content:space-between; gap:var(--space-3); }
+  .shift-entry__title{ font-family:var(--font-heading); font-weight:var(--fw-bold); font-size:var(--fs-xs); color:var(--color-muted); text-transform:uppercase; letter-spacing:.06em; }
 
   .shift-grid{ display:grid; gap:var(--space-4); grid-template-columns:1fr; }
   @media (min-width:600px){ .shift-grid{ grid-template-columns:1fr 1fr; } }
@@ -195,7 +214,11 @@
   .hours-pill.pulse{ animation:pulse-bump 420ms var(--ease-soft); }
   @keyframes pulse-bump{ 0%{ transform:scale(1);} 35%{ transform:scale(1.05); background:var(--color-primary-tint); } 100%{ transform:scale(1);} }
 
-  .add-shift-wrap{ display:flex; justify-content:center; margin-top:var(--space-4); }
+  .btn--icon-sm{ width:32px; height:32px; }
+  .btn--icon-sm svg{ width:15px; height:15px; }
+
+  .add-shift-wrap{ display:flex; justify-content:flex-start; }
+  .add-participant-wrap{ display:flex; justify-content:center; margin-top:var(--space-4); }
 
   /* ---- summary ---- */
   .summary-grid{ display:grid; grid-template-columns:1fr 1fr; gap:var(--space-4); }
@@ -264,7 +287,7 @@
   }
 
   @media (prefers-reduced-motion:reduce){
-    .shift-row, .hours-pill, .check-circle circle, .check-circle path, .btn{ transition:none !important; animation:none !important; }
+    .participant-group, .shift-entry, .hours-pill, .check-circle circle, .check-circle path, .btn{ transition:none !important; animation:none !important; }
   }
 </style>
 </head>
@@ -299,12 +322,12 @@
     <!-- Shifts -->
     <section class="card">
       <h2>Shifts this week</h2>
-      <p class="card-lead">Add one row per shift you worked.</p>
-      <div id="shiftList" style="margin-top:var(--space-5);"></div>
-      <div class="add-shift-wrap">
-        <button type="button" class="btn btn--secondary" id="addShiftBtn">
+      <p class="card-lead">Add a participant once, then log each shift you worked with them. Add another participant if you supported more than one person this week.</p>
+      <div id="participantList" style="margin-top:var(--space-5);"></div>
+      <div class="add-participant-wrap">
+        <button type="button" class="btn btn--secondary" id="addParticipantBtn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Add shift
+          Add participant
         </button>
       </div>
     </section>
@@ -400,20 +423,38 @@
   <div class="pv-decl" id="pvDeclaration"></div>
 </div>
 
-<template id="shiftRowTemplate">
-  <div class="shift-row" role="group">
-    <div class="shift-row__head">
-      <span class="shift-row__title"></span>
-      <button type="button" class="btn--icon" data-action="remove" aria-label="Remove this shift">
+<template id="participantTemplate">
+  <div class="participant-group" role="group">
+    <div class="participant-group__head">
+      <span class="participant-group__title"></span>
+      <button type="button" class="btn--icon" data-action="remove-participant" aria-label="Remove this participant">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="field">
+      <label>Participant name <span class="req">*</span></label>
+      <input class="control" type="text" data-field="participantName" required>
+      <div class="error-msg"></div>
+    </div>
+    <div class="shift-entries" data-role="shift-entries"></div>
+    <div class="add-shift-wrap">
+      <button type="button" class="btn btn--secondary btn--sm" data-action="add-shift">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add shift for this participant
+      </button>
+    </div>
+  </div>
+</template>
+
+<template id="shiftEntryTemplate">
+  <div class="shift-entry" role="group">
+    <div class="shift-entry__head">
+      <span class="shift-entry__title"></span>
+      <button type="button" class="btn--icon btn--icon-sm" data-action="remove-shift" aria-label="Remove this shift">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
     <div class="shift-grid">
-      <div class="field">
-        <label>Participant name <span class="req">*</span></label>
-        <input class="control" type="text" data-field="participant" required>
-        <div class="error-msg"></div>
-      </div>
       <div class="field">
         <label>Date of shift <span class="req">*</span></label>
         <input class="control" type="date" data-field="date" required>
@@ -467,9 +508,11 @@
   /* ============================================================
      STATE
      ============================================================ */
-  let rowSeq = 0;
-  const shiftList = document.getElementById("shiftList");
-  const rowTemplate = document.getElementById("shiftRowTemplate");
+  let participantSeq = 0;
+  let shiftSeq = 0;
+  const participantList = document.getElementById("participantList");
+  const participantTemplate = document.getElementById("participantTemplate");
+  const shiftEntryTemplate = document.getElementById("shiftEntryTemplate");
   const totalHoursEl = document.getElementById("totalHours");
   const totalKmEl = document.getElementById("totalKm");
   let lastTotalHours = 0;
@@ -481,7 +524,7 @@
   submissionDateDisplay.textContent = submissionDateLabel;
 
   /* ============================================================
-     SHIFT ROWS
+     PARTICIPANTS & SHIFT ENTRIES
      ============================================================ */
   function computeHours(start, finish){
     if(!start || !finish) return 0;
@@ -492,25 +535,33 @@
     return diff / 60;
   }
 
-  function renumberRows(){
-    const rows = shiftList.querySelectorAll(".shift-row");
-    rows.forEach((row, i) => {
-      row.querySelector(".shift-row__title").textContent = "Shift " + (i + 1);
-      row.setAttribute("aria-label", "Shift " + (i + 1));
+  function renumberAll(){
+    const groups = participantList.querySelectorAll(".participant-group");
+    groups.forEach((group, gi) => {
+      group.querySelector(".participant-group__title").textContent = "Participant " + (gi + 1);
+      group.setAttribute("aria-label", "Participant " + (gi + 1));
+
+      const entries = group.querySelectorAll(".shift-entry");
+      entries.forEach((entry, si) => {
+        entry.querySelector(".shift-entry__title").textContent = "Shift " + (si + 1);
+        entry.setAttribute("aria-label", "Shift " + (si + 1));
+      });
+      group.querySelectorAll('[data-action="remove-shift"]').forEach(btn => { btn.disabled = entries.length <= 1; });
     });
-    const removeButtons = shiftList.querySelectorAll('[data-action="remove"]');
-    removeButtons.forEach(btn => { btn.disabled = rows.length <= 1; });
+    const removeParticipantButtons = participantList.querySelectorAll('[data-action="remove-participant"]');
+    removeParticipantButtons.forEach(btn => { btn.disabled = groups.length <= 1; });
   }
 
-  function addShiftRow(){
-    const frag = rowTemplate.content.cloneNode(true);
-    const row = frag.querySelector(".shift-row");
-    rowSeq += 1;
-    row.dataset.id = rowSeq;
+  function addShiftEntry(groupEl){
+    const frag = shiftEntryTemplate.content.cloneNode(true);
+    const entry = frag.querySelector(".shift-entry");
+    shiftSeq += 1;
+    entry.dataset.id = shiftSeq;
 
-    row.classList.add("entering");
-    shiftList.appendChild(frag);
-    const appended = shiftList.lastElementChild;
+    entry.classList.add("entering");
+    const container = groupEl.querySelector('[data-role="shift-entries"]');
+    container.appendChild(frag);
+    const appended = container.lastElementChild;
     requestAnimationFrame(() => requestAnimationFrame(() => appended.classList.remove("entering")));
 
     const startInput = appended.querySelector('[data-field="start"]');
@@ -534,30 +585,59 @@
       updateTotals();
     });
 
-    appended.querySelector('[data-action="remove"]').addEventListener("click", () => removeShiftRow(appended));
+    appended.querySelector('[data-action="remove-shift"]').addEventListener("click", () => removeShiftEntry(groupEl, appended));
 
-    renumberRows();
+    renumberAll();
     updateTotals();
   }
 
-  function removeShiftRow(row){
-    if(shiftList.querySelectorAll(".shift-row").length <= 1) return;
-    row.classList.add("leaving");
-    row.addEventListener("transitionend", function handler(e){
+  function removeShiftEntry(groupEl, entry){
+    if(groupEl.querySelectorAll(".shift-entry").length <= 1) return;
+    entry.classList.add("leaving");
+    entry.addEventListener("transitionend", function handler(e){
       if(e.propertyName !== "opacity") return;
-      row.removeEventListener("transitionend", handler);
-      row.remove();
-      renumberRows();
+      entry.removeEventListener("transitionend", handler);
+      entry.remove();
+      renumberAll();
+      updateTotals();
+    });
+  }
+
+  function addParticipant(){
+    const frag = participantTemplate.content.cloneNode(true);
+    const group = frag.querySelector(".participant-group");
+    participantSeq += 1;
+    group.dataset.id = participantSeq;
+
+    group.classList.add("entering");
+    participantList.appendChild(frag);
+    const appended = participantList.lastElementChild;
+    requestAnimationFrame(() => requestAnimationFrame(() => appended.classList.remove("entering")));
+
+    appended.querySelector('[data-action="remove-participant"]').addEventListener("click", () => removeParticipant(appended));
+    appended.querySelector('[data-action="add-shift"]').addEventListener("click", () => addShiftEntry(appended));
+
+    addShiftEntry(appended); // start each participant with one shift
+  }
+
+  function removeParticipant(group){
+    if(participantList.querySelectorAll(".participant-group").length <= 1) return;
+    group.classList.add("leaving");
+    group.addEventListener("transitionend", function handler(e){
+      if(e.propertyName !== "opacity") return;
+      group.removeEventListener("transitionend", handler);
+      group.remove();
+      renumberAll();
       updateTotals();
     });
   }
 
   function closeAllNotesPopovers(){
-    shiftList.querySelectorAll(".info-popover").forEach(p => { p.hidden = true; });
-    shiftList.querySelectorAll('[data-action="notes-info"]').forEach(b => b.setAttribute("aria-expanded", "false"));
+    participantList.querySelectorAll(".info-popover").forEach(p => { p.hidden = true; });
+    participantList.querySelectorAll('[data-action="notes-info"]').forEach(b => b.setAttribute("aria-expanded", "false"));
   }
 
-  shiftList.addEventListener("click", function(e){
+  participantList.addEventListener("click", function(e){
     const btn = e.target.closest('[data-action="notes-info"]');
     if(!btn) return;
     const popover = btn.closest(".field--notes").querySelector(".info-popover");
@@ -591,10 +671,10 @@
 
   function updateTotals(){
     let hours = 0, km = 0;
-    shiftList.querySelectorAll(".shift-row").forEach(row => {
-      const start = row.querySelector('[data-field="start"]').value;
-      const finish = row.querySelector('[data-field="finish"]').value;
-      const kmVal = row.querySelector('[data-field="km"]').value;
+    participantList.querySelectorAll(".shift-entry").forEach(entry => {
+      const start = entry.querySelector('[data-field="start"]').value;
+      const finish = entry.querySelector('[data-field="finish"]').value;
+      const kmVal = entry.querySelector('[data-field="km"]').value;
       if(start && finish) hours += computeHours(start, finish);
       if(kmVal) km += Math.max(0, Number(kmVal));
     });
@@ -604,8 +684,8 @@
     lastTotalKm = km;
   }
 
-  document.getElementById("addShiftBtn").addEventListener("click", addShiftRow);
-  addShiftRow(); // start with one row
+  document.getElementById("addParticipantBtn").addEventListener("click", addParticipant);
+  addParticipant(); // start with one participant
 
   /* ============================================================
      VALIDATION
@@ -632,27 +712,30 @@
     valid = setFieldError(weekEnding, document.querySelector('[data-error-for="weekEnding"]'),
       weekEnding.value ? "" : "Please select the week ending date.") && valid;
 
-    const rows = shiftList.querySelectorAll(".shift-row");
-    rows.forEach(row => {
-      const participant = row.querySelector('[data-field="participant"]');
-      const date = row.querySelector('[data-field="date"]');
-      const start = row.querySelector('[data-field="start"]');
-      const finish = row.querySelector('[data-field="finish"]');
-      const km = row.querySelector('[data-field="km"]');
-      const notes = row.querySelector('[data-field="notes"]');
+    const groups = participantList.querySelectorAll(".participant-group");
+    groups.forEach(group => {
+      const participantName = group.querySelector('[data-field="participantName"]');
+      valid = setFieldError(participantName, participantName.closest(".field").querySelector(".error-msg"),
+        participantName.value.trim() ? "" : "Required.") && valid;
 
-      valid = setFieldError(participant, participant.closest(".field").querySelector(".error-msg"),
-        participant.value.trim() ? "" : "Required.") && valid;
-      valid = setFieldError(date, date.closest(".field").querySelector(".error-msg"),
-        date.value ? "" : "Required.") && valid;
-      valid = setFieldError(start, start.closest(".field").querySelector(".error-msg"),
-        start.value ? "" : "Required.") && valid;
-      valid = setFieldError(finish, finish.closest(".field").querySelector(".error-msg"),
-        finish.value ? "" : "Required.") && valid;
-      valid = setFieldError(km, km.closest(".field").querySelector(".error-msg"),
-        (km.value !== "" && Number(km.value) < 0) ? "Cannot be negative." : "") && valid;
-      valid = setFieldError(notes, notes.closest(".field").querySelector(".error-msg"),
-        notes.value.trim() ? "" : "Required.") && valid;
+      group.querySelectorAll(".shift-entry").forEach(entry => {
+        const date = entry.querySelector('[data-field="date"]');
+        const start = entry.querySelector('[data-field="start"]');
+        const finish = entry.querySelector('[data-field="finish"]');
+        const km = entry.querySelector('[data-field="km"]');
+        const notes = entry.querySelector('[data-field="notes"]');
+
+        valid = setFieldError(date, date.closest(".field").querySelector(".error-msg"),
+          date.value ? "" : "Required.") && valid;
+        valid = setFieldError(start, start.closest(".field").querySelector(".error-msg"),
+          start.value ? "" : "Required.") && valid;
+        valid = setFieldError(finish, finish.closest(".field").querySelector(".error-msg"),
+          finish.value ? "" : "Required.") && valid;
+        valid = setFieldError(km, km.closest(".field").querySelector(".error-msg"),
+          (km.value !== "" && Number(km.value) < 0) ? "Cannot be negative." : "") && valid;
+        valid = setFieldError(notes, notes.closest(".field").querySelector(".error-msg"),
+          notes.value.trim() ? "" : "Required.") && valid;
+      });
     });
 
     const declaration = document.getElementById("declaration");
@@ -668,15 +751,18 @@
 
   function collectPayload(){
     const shifts = [];
-    shiftList.querySelectorAll(".shift-row").forEach(row => {
-      const start = row.querySelector('[data-field="start"]').value;
-      const finish = row.querySelector('[data-field="finish"]').value;
-      shifts.push({
-        participant: row.querySelector('[data-field="participant"]').value.trim(),
-        date: row.querySelector('[data-field="date"]').value,
-        hours: Number(computeHours(start, finish).toFixed(2)),
-        km: row.querySelector('[data-field="km"]').value ? Number(row.querySelector('[data-field="km"]').value) : 0,
-        notes: row.querySelector('[data-field="notes"]').value.trim()
+    participantList.querySelectorAll(".participant-group").forEach(group => {
+      const participantName = group.querySelector('[data-field="participantName"]').value.trim();
+      group.querySelectorAll(".shift-entry").forEach(entry => {
+        const start = entry.querySelector('[data-field="start"]').value;
+        const finish = entry.querySelector('[data-field="finish"]').value;
+        shifts.push({
+          participant: participantName,
+          date: entry.querySelector('[data-field="date"]').value,
+          hours: Number(computeHours(start, finish).toFixed(2)),
+          km: entry.querySelector('[data-field="km"]').value ? Number(entry.querySelector('[data-field="km"]').value) : 0,
+          notes: entry.querySelector('[data-field="notes"]').value.trim()
+        });
       });
     });
 
@@ -793,11 +879,11 @@
     return shift["_" + which] || "";
   }
   function captureShiftTimes(payload){
-    const rows = shiftList.querySelectorAll(".shift-row");
-    rows.forEach((row, i) => {
+    const entries = participantList.querySelectorAll(".shift-entry");
+    entries.forEach((entry, i) => {
       if(!payload.shifts[i]) return;
-      payload.shifts[i]._start = row.querySelector('[data-field="start"]').value;
-      payload.shifts[i]._finish = row.querySelector('[data-field="finish"]').value;
+      payload.shifts[i]._start = entry.querySelector('[data-field="start"]').value;
+      payload.shifts[i]._finish = entry.querySelector('[data-field="finish"]').value;
     });
   }
 
