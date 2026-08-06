@@ -419,7 +419,7 @@
   <div class="pv-meta" id="pvWeekEnding"></div>
   <table>
     <thead>
-      <tr><th>Participant</th><th>Date</th><th>Start</th><th>Finish</th><th>Hours</th><th>Km</th><th>Notes</th></tr>
+      <tr><th>Participant</th><th>Date</th><th>Type</th><th>Start</th><th>Finish</th><th>Hours</th><th>Km</th><th>Notes</th></tr>
     </thead>
     <tbody id="pvRows"></tbody>
   </table>
@@ -462,6 +462,14 @@
       <div class="field">
         <label>Date of shift <span class="req">*</span></label>
         <input class="control" type="date" data-field="date" required>
+        <div class="error-msg"></div>
+      </div>
+      <div class="field">
+        <label>Shift type <span class="req">*</span></label>
+        <select class="control" data-field="shiftType" required>
+          <option value="active">Active shift (hourly)</option>
+          <option value="sleepover">Sleepover (flat rate)</option>
+        </select>
         <div class="error-msg"></div>
       </div>
       <div class="field-pair">
@@ -767,6 +775,7 @@
         shifts.push({
           participant: participantName,
           date: entry.querySelector('[data-field="date"]').value,
+          shiftType: entry.querySelector('[data-field="shiftType"]').value,
           hours: Number(computeHours(start, finish).toFixed(2)),
           km: entry.querySelector('[data-field="km"]').value ? Number(entry.querySelector('[data-field="km"]').value) : 0,
           notes: entry.querySelector('[data-field="notes"]').value.trim()
@@ -852,6 +861,7 @@
       "<tr>" +
         "<td>" + escapeHtml(s.participant) + "</td>" +
         "<td>" + escapeHtml(s.date) + "</td>" +
+        "<td>" + (s.shiftType === "sleepover" ? "Sleepover" : "Active") + "</td>" +
         "<td>" + escapeHtml(getRowTime(s, "start")) + "</td>" +
         "<td>" + escapeHtml(getRowTime(s, "finish")) + "</td>" +
         "<td>" + s.hours.toFixed(2) + "</td>" +

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Remittance Advice — Serendib Support Services</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --color-primary:#2f6e5b; --color-primary-dark:#245546; --color-primary-darker:#1c4234;
+    --color-primary-soft:#e8f1ec; --color-primary-tint:#cfe4d9;
+    --color-accent:#c2613d; --color-accent-dark:#a94e2e; --color-accent-soft:#f7e7df;
+    --color-bg:#faf6f0; --color-surface:#ffffff; --color-surface-alt:#f3ece0;
+    --color-text:#25302b; --color-heading:#1b2722; --color-muted:#56615b; --color-faint:#7c857f;
+    --color-border:#d8cdb9; --color-border-soft:#e7ded0;
+    --font-heading:"Hanken Grotesk","Segoe UI",Arial,sans-serif;
+    --font-body:"Hanken Grotesk","Segoe UI",Arial,sans-serif;
+    --font-mono:"IBM Plex Mono","Courier New",monospace;
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  body{
+    margin:0; background:var(--color-bg); color:var(--color-text);
+    font-family:var(--font-body); font-size:15px; line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2{ font-family:var(--font-heading); color:var(--color-heading); margin:0; }
+  p{ margin:0; }
+
+  .sheet{
+    max-width:760px; margin:0 auto;
+    background:var(--color-surface);
+    border:1px solid var(--color-border-soft);
+    padding:2.75rem 3rem 2.25rem;
+  }
+
+  /* ---- header ---- */
+  .doc-header{
+    display:flex; justify-content:space-between; align-items:flex-start;
+    gap:1.5rem; padding-bottom:1.5rem; border-bottom:2px solid var(--color-primary-darker);
+  }
+  .wordmark{ font-family:var(--font-heading); font-weight:800; font-size:1.15rem; color:var(--color-primary-darker); letter-spacing:-.01em; }
+  .wordmark span{ color:var(--color-accent); }
+  .wordmark-sub{ font-size:.75rem; color:var(--color-muted); margin-top:.15rem; letter-spacing:.02em; }
+  .doc-header__meta{ text-align:right; }
+  .doc-title{ font-size:1.55rem; font-weight:800; color:var(--color-primary-darker); letter-spacing:.01em; }
+  .doc-header__meta .doc-sub{ font-size:.8rem; color:var(--color-muted); margin-top:.25rem; }
+  .doc-header__meta .doc-sub strong{ font-family:var(--font-mono); font-weight:600; color:var(--color-heading); }
+
+  /* ---- summary strip: who / when ---- */
+  .party-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;
+    margin-top:1.75rem; padding:1.1rem 1.25rem;
+    background:var(--color-surface-alt); border:1px solid var(--color-border-soft); border-radius:6px;
+  }
+  .party-grid dt{ font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--color-muted); margin:0; }
+  .party-grid dd{ margin:.2rem 0 0; font-size:1rem; font-weight:600; color:var(--color-heading); }
+  .party-grid .divider{ border-left:1px solid var(--color-border-soft); padding-left:1.5rem; }
+
+  /* ---- statement table ---- */
+  .statement{ margin-top:1.75rem; }
+  .statement h2{
+    font-size:.78rem; font-weight:800; text-transform:uppercase; letter-spacing:.08em;
+    color:var(--color-primary-darker); margin-bottom:.6rem;
+  }
+  table.pay-table{ width:100%; border-collapse:collapse; }
+  table.pay-table thead th{
+    text-align:left; font-family:var(--font-heading); font-size:.72rem; font-weight:700;
+    text-transform:uppercase; letter-spacing:.06em; color:var(--color-muted);
+    padding:.55rem .7rem; border-bottom:2px solid var(--color-border);
+  }
+  table.pay-table thead th.num, table.pay-table td.num{ text-align:right; }
+  table.pay-table tbody td{
+    padding:.7rem .7rem; border-bottom:1px solid var(--color-border-soft);
+    font-size:.94rem; color:var(--color-text); vertical-align:top;
+  }
+  table.pay-table tbody td.num{ font-family:var(--font-mono); font-weight:500; }
+  table.pay-table tbody tr:last-child td{ border-bottom:1px solid var(--color-border-soft); }
+  .line-label{ font-weight:600; color:var(--color-heading); }
+  .line-detail{ color:var(--color-muted); font-size:.82rem; margin-top:.15rem; }
+  .deduction{ color:var(--color-accent-dark); }
+
+  table.pay-table tbody tr.subtotal-row td{
+    background:var(--color-surface-alt); font-weight:700; color:var(--color-heading);
+    border-top:1.5px solid var(--color-border); border-bottom:1.5px solid var(--color-border);
+  }
+  table.pay-table tbody tr.subtotal-row td.num{ font-family:var(--font-mono); font-weight:700; }
+
+  .table-footnote{ margin-top:.6rem; font-size:.78rem; color:var(--color-muted); line-height:1.5; }
+
+  table.pay-table tfoot td{
+    padding:.85rem .7rem; font-size:1.05rem; font-weight:800; color:#fff;
+    background:var(--color-primary-darker); border-bottom:none;
+  }
+  table.pay-table tfoot td.num{ font-family:var(--font-mono); font-size:1.15rem; }
+  table.pay-table tfoot tr td:first-child{ border-radius:6px 0 0 6px; }
+  table.pay-table tfoot tr td:last-child{ border-radius:0 6px 6px 0; }
+
+  /* ---- payment method line ---- */
+  .pay-method{
+    display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap;
+    margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--color-border-soft);
+    font-size:.85rem; color:var(--color-muted);
+  }
+  .pay-method strong{ color:var(--color-heading); font-weight:600; }
+
+  /* ---- confirmation banner ---- */
+  .confirm-note{
+    display:flex; align-items:center; gap:.65rem;
+    margin-top:1.75rem; padding:.85rem 1.1rem;
+    background:var(--color-primary-soft); border:1px solid var(--color-primary-tint);
+    border-radius:6px; color:var(--color-primary-darker); font-size:.85rem; font-weight:600;
+  }
+  .confirm-note svg{ width:18px; height:18px; flex-shrink:0; color:var(--color-primary); }
+
+  /* ---- footer ---- */
+  .doc-footer{
+    margin-top:2rem; padding-top:1.1rem; border-top:1px solid var(--color-border-soft);
+    display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap;
+    font-size:.72rem; color:var(--color-faint);
+  }
+
+  @media print{
+    body{ background:#fff; }
+    .sheet{ border:none; padding:0; max-width:none; }
+    @page{ size:A4; margin:18mm 16mm; }
+  }
+
+  @media (max-width:600px){
+    .sheet{ padding:1.75rem 1.25rem; }
+    .doc-header{ flex-direction:column; }
+    .doc-header__meta{ text-align:left; }
+    .party-grid{ grid-template-columns:1fr; }
+    .party-grid .divider{ border-left:none; padding-left:0; border-top:1px solid var(--color-border-soft); padding-top:1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="sheet">
+
+  <header class="doc-header">
+    <div>
+      <div class="wordmark">Serendib<span>·</span>Support Services</div>
+      <div class="wordmark-sub">Disability &amp; community support services</div>
+    </div>
+    <div class="doc-header__meta">
+      <div class="doc-title">Remittance Advice</div>
+      <div class="doc-sub">Advice no. <strong>RA-2026-0714</strong></div>
+      <div class="doc-sub">Date issued <strong>7 August 2026</strong></div>
+    </div>
+  </header>
+
+  <dl class="party-grid">
+    <div>
+      <dt>Paid to</dt>
+      <dd>Jane Smith</dd>
+    </div>
+    <div class="divider">
+      <dt>Pay period — week ending</dt>
+      <dd>2 August 2026</dd>
+    </div>
+  </dl>
+
+  <div class="statement">
+    <h2>Payment breakdown</h2>
+    <table class="pay-table">
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th class="num">Detail</th>
+          <th class="num">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div class="line-label">Weekday hours</div>
+            <div class="line-detail">Active shifts</div>
+          </td>
+          <td class="num">24.00 hrs @ $40.00/hr</td>
+          <td class="num">$960.00</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="line-label">Saturday hours</div>
+            <div class="line-detail">Active shifts</div>
+          </td>
+          <td class="num">6.50 hrs @ $48.90/hr</td>
+          <td class="num">$317.85</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="line-label">Sleepover shift</div>
+            <div class="line-detail">Flat rate per shift</div>
+          </td>
+          <td class="num">1 shift @ $140.90</td>
+          <td class="num">$140.90</td>
+        </tr>
+        <tr class="subtotal-row">
+          <td>Gross labour payment</td>
+          <td class="num">30.50 hrs worked + 1 sleepover</td>
+          <td class="num">$1,418.75</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="line-label">Superannuation contribution</div>
+            <div class="line-detail">Included within the rates above — paid to your nominated super fund, not to your bank account</div>
+          </td>
+          <td class="num">12% of gross labour</td>
+          <td class="num deduction">&minus;$152.01</td>
+        </tr>
+        <tr class="subtotal-row">
+          <td>Net labour payment</td>
+          <td class="num"></td>
+          <td class="num">$1,266.74</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="line-label">Kilometre reimbursement</div>
+            <div class="line-detail">Approved travel between shifts</div>
+          </td>
+          <td class="num">146.0 km @ $1.00/km</td>
+          <td class="num">$146.00</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td>Total payment to your account</td>
+          <td class="num"></td>
+          <td class="num">$1,412.74</td>
+        </tr>
+      </tfoot>
+    </table>
+    <p class="table-footnote">Superannuation is included within your contracted hourly/shift rates and is paid directly to your nominated super fund — it is not part of the amount transferred to your bank account.</p>
+  </div>
+
+  <div class="pay-method">
+    <div><strong>Payment method</strong> — Direct bank transfer, account ending 4821</div>
+    <div><strong>Payment date</strong> — 7 August 2026</div>
+  </div>
+
+  <div class="confirm-note">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    This payment has been processed and funds have been sent to your nominated account.
+  </div>
+
+  <footer class="doc-footer">
+    <span>Serendib Support Services — internal contractor payment record</span>
+    <span>Questions about this advice? Contact your coordinator.</span>
+  </footer>
+
+</div>
+
+</body>
+</html>
