@@ -97,6 +97,29 @@
   .control.has-error{ border-color:var(--color-error); }
   .control.has-error:focus{ box-shadow:0 0 0 4px rgba(188,58,43,.14); }
 
+  .field-label-row{ display:flex; align-items:center; gap:.4em; }
+  .info-btn{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:20px; height:20px; flex-shrink:0;
+    border-radius:50%; border:1.5px solid var(--color-primary);
+    background:var(--color-primary-soft); color:var(--color-primary-darker);
+    font-family:var(--font-heading); font-style:italic; font-weight:var(--fw-bold); font-size:.7rem;
+    line-height:1; padding:0; cursor:pointer;
+    transition:background var(--transition), color var(--transition), transform var(--transition);
+  }
+  .info-btn:hover{ background:var(--color-primary-tint); transform:scale(1.08); }
+  .info-btn[aria-expanded="true"]{ background:var(--color-primary); color:#fff; border-color:var(--color-primary); }
+
+  .info-popover{
+    background:var(--color-primary-soft); border:1px solid var(--color-primary-tint);
+    border-radius:var(--radius-md); padding:.7rem .9rem;
+    font-size:var(--fs-xs); color:var(--color-primary-darker); line-height:1.55;
+    animation:popover-in 180ms var(--ease-soft);
+  }
+  .info-popover[hidden]{ display:none; }
+  .info-popover strong{ font-family:var(--font-heading); }
+  @keyframes popover-in{ from{ opacity:0; transform:translateY(-4px); } to{ opacity:1; transform:translateY(0); } }
+
   .error-msg{ color:var(--color-error); font-size:var(--fs-xs); font-weight:var(--fw-medium); min-height:1em; }
 
   /* ---- buttons ---- */
@@ -416,8 +439,15 @@
         <div class="hours-pill" data-role="hours">0.00 hrs</div>
       </div>
       <div class="field field--notes">
-        <label>Support notes <span class="opt">(optional)</span></label>
-        <textarea class="control" data-field="notes" placeholder="Brief note about the support provided"></textarea>
+        <div class="field-label-row">
+          <label>Support notes <span class="req">*</span></label>
+          <button type="button" class="info-btn" data-action="notes-info" aria-expanded="false" aria-label="View an example support note">i</button>
+        </div>
+        <div class="info-popover" role="note" hidden>
+          <strong>Example:</strong> Assisted with meal preparation and light housekeeping. Participant engaged well during a community outing to the local library and was in good spirits throughout the visit.
+        </div>
+        <textarea class="control" data-field="notes" placeholder="Brief note about the support provided" required></textarea>
+        <div class="error-msg"></div>
       </div>
     </div>
   </div>
@@ -522,6 +552,29 @@
     });
   }
 
+  function closeAllNotesPopovers(){
+    shiftList.querySelectorAll(".info-popover").forEach(p => { p.hidden = true; });
+    shiftList.querySelectorAll('[data-action="notes-info"]').forEach(b => b.setAttribute("aria-expanded", "false"));
+  }
+
+  shiftList.addEventListener("click", function(e){
+    const btn = e.target.closest('[data-action="notes-info"]');
+    if(!btn) return;
+    const popover = btn.closest(".field--notes").querySelector(".info-popover");
+    const wasOpen = !popover.hidden;
+    closeAllNotesPopovers();
+    if(!wasOpen){
+      popover.hidden = false;
+      btn.setAttribute("aria-expanded", "true");
+    }
+  });
+  document.addEventListener("click", function(e){
+    if(!e.target.closest(".field--notes")) closeAllNotesPopovers();
+  });
+  document.addEventListener("keydown", function(e){
+    if(e.key === "Escape") closeAllNotesPopovers();
+  });
+
   function animateCount(el, from, to, decimals){
     const duration = 380;
     const start = performance.now();
@@ -586,6 +639,7 @@
       const start = row.querySelector('[data-field="start"]');
       const finish = row.querySelector('[data-field="finish"]');
       const km = row.querySelector('[data-field="km"]');
+      const notes = row.querySelector('[data-field="notes"]');
 
       valid = setFieldError(participant, participant.closest(".field").querySelector(".error-msg"),
         participant.value.trim() ? "" : "Required.") && valid;
@@ -597,6 +651,8 @@
         finish.value ? "" : "Required.") && valid;
       valid = setFieldError(km, km.closest(".field").querySelector(".error-msg"),
         (km.value !== "" && Number(km.value) < 0) ? "Cannot be negative." : "") && valid;
+      valid = setFieldError(notes, notes.closest(".field").querySelector(".error-msg"),
+        notes.value.trim() ? "" : "Required.") && valid;
     });
 
     const declaration = document.getElementById("declaration");
