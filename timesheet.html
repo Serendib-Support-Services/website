@@ -464,11 +464,6 @@
         <input class="control" type="date" data-field="date" required>
         <div class="error-msg"></div>
       </div>
-      <div class="field">
-        <label>Approved travel km <span class="opt">(optional)</span></label>
-        <input class="control" type="number" data-field="km" min="0" step="0.1" inputmode="decimal" placeholder="0">
-        <div class="error-msg"></div>
-      </div>
       <div class="field-pair">
         <div class="field">
           <label>Start time <span class="req">*</span></label>
@@ -481,9 +476,16 @@
           <div class="error-msg"></div>
         </div>
       </div>
-      <div class="field">
-        <label>Hours (auto-calculated)</label>
-        <div class="hours-pill" data-role="hours">0.00 hrs</div>
+      <div class="field-pair">
+        <div class="field">
+          <label>Hours (auto-calculated)</label>
+          <div class="hours-pill" data-role="hours">0.00 hrs</div>
+        </div>
+        <div class="field">
+          <label>Approved travel km <span class="opt">(optional)</span></label>
+          <input class="control" type="number" data-field="km" min="0" step="0.1" inputmode="decimal" placeholder="0">
+          <div class="error-msg"></div>
+        </div>
       </div>
       <div class="field field--notes">
         <div class="field-label-row">
