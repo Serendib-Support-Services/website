@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Weekly Timesheet — Serendib Support Services</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --color-primary:#2f6e5b; --color-primary-dark:#245546; --color-primary-darker:#1c4234;
+    --color-primary-soft:#e8f1ec; --color-primary-tint:#cfe4d9;
+    --color-accent:#c2613d; --color-accent-dark:#a94e2e; --color-accent-soft:#f7e7df; --color-accent-tint:#ecc7ae;
+    --color-bg:#faf6f0; --color-surface:#ffffff; --color-surface-alt:#f3ece0;
+    --color-text:#25302b; --color-heading:#1b2722; --color-muted:#56615b; --color-faint:#7c857f;
+    --color-border:#e7ded0; --color-border-soft:#eee7da; --color-border-strong:#d8cdb9;
+    --color-success:#2e7d5b; --color-success-soft:#e3f1ea;
+    --color-error:#bc3a2b; --color-error-soft:#f7e4e0;
+    --color-focus:#1d6f8b;
+    --font-heading:"Hanken Grotesk","Segoe UI",system-ui,-apple-system,sans-serif;
+    --font-body:"Hanken Grotesk","Segoe UI",system-ui,-apple-system,sans-serif;
+    --font-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+    --fs-xs:.8125rem; --fs-sm:.9375rem; --fs-base:1.0625rem; --fs-md:1.1875rem;
+    --fs-lg:clamp(1.25rem,1.6vw,1.4rem); --fs-xl:clamp(1.45rem,2.2vw,1.75rem); --fs-2xl:clamp(1.8rem,3.2vw,2.4rem);
+    --fw-regular:400; --fw-medium:500; --fw-semibold:600; --fw-bold:700; --fw-extra:800;
+    --space-1:.25rem; --space-2:.5rem; --space-3:.75rem; --space-4:1rem; --space-5:1.5rem; --space-6:2rem; --space-7:2.5rem; --space-8:3rem;
+    --radius-sm:8px; --radius-md:12px; --radius-lg:14px; --radius-xl:20px; --radius-pill:999px;
+    --shadow-xs:0 1px 2px rgba(40,50,45,.06);
+    --shadow-sm:0 2px 8px rgba(28,40,32,.09);
+    --shadow-md:0 8px 22px -8px rgba(28,40,32,.24);
+    --shadow-lg:0 20px 48px -18px rgba(20,35,28,.32);
+    --transition:140ms ease; --transition-slow:260ms ease;
+    --ease-standard:cubic-bezier(.33,1,.68,1); --ease-soft:cubic-bezier(.16,1,.3,1);
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html{ -webkit-text-size-adjust:100%; }
+  body{
+    margin:0; background:var(--color-bg); color:var(--color-text);
+    font-family:var(--font-body); font-size:var(--fs-base); line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{ font-family:var(--font-heading); color:var(--color-heading); margin:0; line-height:1.2; }
+  p{ margin:0; }
+  ::selection{ background:var(--color-primary-tint); }
+
+  a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible{
+    outline:3px solid var(--color-focus); outline-offset:2px; border-radius:var(--radius-sm);
+  }
+
+  .page{ max-width:840px; margin:0 auto; padding:clamp(1.25rem,4vw,2.5rem) clamp(1.1rem,4vw,1.5rem) clamp(3rem,6vw,5rem); }
+
+  /* ---- header ---- */
+  .site-header{ text-align:center; margin-bottom:clamp(1.75rem,4vw,2.5rem); }
+  .wordmark{ font-family:var(--font-heading); font-weight:var(--fw-extra); font-size:clamp(1.15rem,2.6vw,1.4rem); color:var(--color-primary-darker); letter-spacing:-.01em; }
+  .wordmark span{ color:var(--color-accent); }
+  .page-title{ font-size:var(--fs-2xl); font-weight:var(--fw-extra); margin-top:var(--space-3); }
+  .page-sub{ color:var(--color-muted); margin-top:var(--space-2); font-size:var(--fs-sm); }
+  .page-sub strong{ color:var(--color-heading); font-weight:var(--fw-semibold); }
+
+  /* ---- card ---- */
+  .card{
+    background:var(--color-surface); border:1px solid var(--color-border);
+    border-radius:var(--radius-xl); box-shadow:var(--shadow-md);
+    padding:clamp(1.25rem,4vw,2.25rem); margin-bottom:var(--space-5);
+  }
+  .card h2{ font-size:var(--fs-md); font-weight:var(--fw-extra); }
+  .card-lead{ color:var(--color-muted); font-size:var(--fs-sm); margin-top:var(--space-1); }
+
+  /* ---- form basics ---- */
+  .form-row{ display:grid; gap:var(--space-4); }
+  @media (min-width:600px){ .form-row--2{ grid-template-columns:1fr 1fr; } }
+
+  .field{ display:grid; gap:var(--space-2); }
+  .field label{ font-family:var(--font-heading); font-weight:var(--fw-bold); font-size:var(--fs-sm); color:var(--color-heading); }
+  .field .opt{ color:var(--color-faint); font-weight:var(--fw-regular); font-size:var(--fs-xs); }
+  .field .req{ color:var(--color-accent-dark); }
+
+  .control{
+    width:100%; min-height:48px; padding:.7rem .9rem;
+    font-family:var(--font-body); font-size:var(--fs-base); color:var(--color-text);
+    background:var(--color-bg); border:1.5px solid var(--color-border-strong);
+    border-radius:var(--radius-md);
+    transition:border-color var(--transition), box-shadow var(--transition), background var(--transition);
+  }
+  .control::placeholder{ color:var(--color-faint); }
+  .control:hover{ border-color:var(--color-primary-tint); }
+  .control:focus{
+    outline:none; border-color:var(--color-primary); background:var(--color-surface);
+    box-shadow:0 0 0 4px rgba(47,110,91,.16);
+  }
+  textarea.control{ min-height:64px; resize:vertical; line-height:1.5; }
+  .control.has-error{ border-color:var(--color-error); }
+  .control.has-error:focus{ box-shadow:0 0 0 4px rgba(188,58,43,.14); }
+
+  .error-msg{ color:var(--color-error); font-size:var(--fs-xs); font-weight:var(--fw-medium); min-height:1em; }
+
+  /* ---- buttons ---- */
+  .btn{
+    --btn-bg:var(--color-primary); --btn-fg:#fff;
+    display:inline-flex; align-items:center; justify-content:center; gap:var(--space-2);
+    min-height:48px; padding:.75rem 1.5rem;
+    font-family:var(--font-heading); font-size:var(--fs-sm); font-weight:var(--fw-bold);
+    color:var(--btn-fg); background:var(--btn-bg); border:1.5px solid transparent;
+    border-radius:var(--radius-pill); cursor:pointer; text-align:center;
+    transition:background var(--transition), border-color var(--transition), color var(--transition), box-shadow var(--transition), transform var(--transition);
+  }
+  .btn svg{ width:18px; height:18px; flex-shrink:0; }
+  .btn--primary{ box-shadow:0 18px 40px -18px rgba(47,110,91,.4); }
+  .btn--primary:hover:not(:disabled){ background:var(--color-primary-dark); transform:translateY(-2px); box-shadow:var(--shadow-lg); }
+  .btn--primary:active:not(:disabled){ background:var(--color-primary-darker); transform:translateY(0); }
+  .btn--primary:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; }
+  .btn--secondary{ --btn-bg:transparent; --btn-fg:var(--color-primary); border-color:var(--color-primary); }
+  .btn--secondary:hover{ background:var(--color-primary); color:#fff; transform:translateY(-2px); }
+  .btn--ghost{ --btn-bg:transparent; --btn-fg:var(--color-heading); border-color:var(--color-border-strong); }
+  .btn--ghost:hover{ background:var(--color-bg); border-color:var(--color-primary); color:var(--color-primary); transform:translateY(-2px); }
+  .btn--accent{ --btn-bg:var(--color-accent); }
+  .btn--accent:hover{ background:var(--color-accent-dark); transform:translateY(-2px); }
+  .btn--block{ width:100%; }
+  .btn--sm{ min-height:38px; padding:.5rem 1rem; font-size:var(--fs-xs); }
+
+  .btn--icon{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:38px; height:38px; padding:0; flex-shrink:0;
+    background:var(--color-bg); border:1.5px solid var(--color-border-strong); color:var(--color-muted);
+    border-radius:var(--radius-pill); cursor:pointer;
+    transition:background var(--transition), border-color var(--transition), color var(--transition), transform var(--transition);
+  }
+  .btn--icon:hover:not(:disabled){ background:var(--color-error-soft); border-color:var(--color-error); color:var(--color-error); transform:scale(1.06); }
+  .btn--icon:disabled{ opacity:.35; cursor:not-allowed; }
+  .btn--icon svg{ width:17px; height:17px; }
+
+  /* ---- shift rows ---- */
+  #shiftList{ display:grid; gap:var(--space-4); }
+  .shift-row{
+    background:var(--color-surface-alt); border:1px solid var(--color-border);
+    border-radius:var(--radius-lg); padding:clamp(1rem,3vw,1.4rem);
+    display:grid; gap:var(--space-4);
+    opacity:1; transform:translateY(0) scale(1);
+    max-height:900px;
+    transition:opacity var(--transition-slow) var(--ease-soft), transform var(--transition-slow) var(--ease-soft),
+               max-height var(--transition-slow) var(--ease-soft), padding var(--transition-slow) var(--ease-soft),
+               margin var(--transition-slow) var(--ease-soft), border-color var(--transition-slow);
+    overflow:hidden;
+  }
+  .shift-row.entering{ opacity:0; transform:translateY(-10px) scale(.98); }
+  .shift-row.leaving{
+    opacity:0; transform:translateY(-8px) scale(.97);
+    max-height:0; padding-top:0; padding-bottom:0; margin-bottom:calc(-1 * var(--space-4)); border-color:transparent;
+  }
+
+  .shift-row__head{ display:flex; align-items:center; justify-content:space-between; gap:var(--space-3); }
+  .shift-row__title{ font-family:var(--font-heading); font-weight:var(--fw-bold); font-size:var(--fs-sm); color:var(--color-primary-darker); text-transform:uppercase; letter-spacing:.06em; }
+
+  .shift-grid{ display:grid; gap:var(--space-4); grid-template-columns:1fr; }
+  @media (min-width:600px){ .shift-grid{ grid-template-columns:1fr 1fr; } }
+  @media (min-width:820px){ .shift-grid{ grid-template-columns:1fr 1fr 1fr; } }
+  .shift-grid .field--notes{ grid-column:1 / -1; }
+
+  .hours-pill{
+    display:inline-flex; align-items:center; justify-content:center; gap:.4em;
+    min-height:48px; padding:.7rem .9rem;
+    font-family:var(--font-mono); font-weight:var(--fw-medium); font-size:var(--fs-base);
+    background:var(--color-primary-soft); color:var(--color-primary-darker);
+    border:1.5px solid var(--color-primary-tint); border-radius:var(--radius-md);
+    transition:background var(--transition-slow), transform var(--transition-slow);
+  }
+  .hours-pill.pulse{ animation:pulse-bump 420ms var(--ease-soft); }
+  @keyframes pulse-bump{ 0%{ transform:scale(1);} 35%{ transform:scale(1.05); background:var(--color-primary-tint); } 100%{ transform:scale(1);} }
+
+  .add-shift-wrap{ display:flex; justify-content:center; margin-top:var(--space-4); }
+
+  /* ---- summary ---- */
+  .summary-grid{ display:grid; grid-template-columns:1fr 1fr; gap:var(--space-4); }
+  .stat{
+    background:var(--color-primary-darker); color:#fff; border-radius:var(--radius-lg);
+    padding:clamp(1rem,3vw,1.4rem); text-align:center;
+    background-image:radial-gradient(120% 140% at 100% 0%, rgba(194,97,61,.28), transparent 60%);
+  }
+  .stat__value{ font-family:var(--font-mono); font-size:clamp(1.6rem,4.5vw,2.1rem); font-weight:var(--fw-semibold); display:block; }
+  .stat__label{ font-size:var(--fs-xs); color:#c2d4cc; text-transform:uppercase; letter-spacing:.08em; margin-top:var(--space-1); display:block; }
+
+  /* ---- declaration ---- */
+  .declaration-text{ font-size:var(--fs-sm); color:var(--color-text); line-height:1.6; }
+  .consent{ display:flex; gap:var(--space-3); align-items:flex-start; margin-top:var(--space-4); }
+  .consent input{ width:22px; height:22px; margin-top:2px; accent-color:var(--color-primary); flex-shrink:0; }
+  .consent label{ font-size:var(--fs-sm); color:var(--color-text); font-weight:var(--fw-medium); }
+  .submission-date{ margin-top:var(--space-4); font-size:var(--fs-sm); color:var(--color-muted); }
+  .submission-date strong{ color:var(--color-heading); font-family:var(--font-mono); font-weight:var(--fw-medium); }
+
+  /* ---- banners ---- */
+  .banner{
+    display:flex; gap:var(--space-3); align-items:flex-start;
+    border-radius:var(--radius-md); padding:var(--space-4); font-size:var(--fs-sm);
+    margin-bottom:var(--space-4);
+  }
+  .banner--error{ background:var(--color-error-soft); color:#7a2a1f; border:1px solid #e8b7ac; }
+  .banner svg{ width:20px; height:20px; flex-shrink:0; margin-top:1px; }
+
+  /* ---- success state ---- */
+  #successView{ display:none; text-align:center; padding:clamp(2rem,6vw,3.5rem) clamp(1.25rem,4vw,2.25rem); }
+  .check-wrap{ display:flex; justify-content:center; margin-bottom:var(--space-5); }
+  .check-circle{ width:84px; height:84px; }
+  .check-circle circle{
+    fill:none; stroke:var(--color-primary); stroke-width:4;
+    stroke-dasharray:245; stroke-dashoffset:245;
+  }
+  .check-circle path{
+    fill:none; stroke:var(--color-primary); stroke-width:5; stroke-linecap:round; stroke-linejoin:round;
+    stroke-dasharray:36; stroke-dashoffset:36;
+  }
+  #successView.show .check-circle circle{ animation:draw-circle 560ms var(--ease-standard) forwards; }
+  #successView.show .check-circle path{ animation:draw-check 320ms var(--ease-standard) 480ms forwards; }
+  @keyframes draw-circle{ to{ stroke-dashoffset:0; } }
+  @keyframes draw-check{ to{ stroke-dashoffset:0; } }
+  #successView h2{ font-size:var(--fs-xl); font-weight:var(--fw-extra); }
+  #successView p{ color:var(--color-muted); margin-top:var(--space-2); }
+  .success-actions{ display:flex; flex-wrap:wrap; gap:var(--space-3); justify-content:center; margin-top:var(--space-6); }
+
+  #retryBanner{ display:none; }
+
+  .footnote{ text-align:center; font-size:var(--fs-xs); color:var(--color-faint); margin-top:var(--space-6); }
+
+  /* ---- print view ---- */
+  #printView{ display:none; }
+  body.printing > *:not(#printView){ display:none !important; }
+  body.printing #printView{ display:block; max-width:720px; margin:0 auto; padding:2rem; font-family:var(--font-body); color:#1b2722; }
+  #printView h1{ font-size:1.4rem; }
+  #printView table{ width:100%; border-collapse:collapse; margin-top:1.25rem; font-size:.85rem; }
+  #printView th,#printView td{ border:1px solid #ccc; padding:.5rem .6rem; text-align:left; }
+  #printView th{ background:#f3ece0; }
+  #printView .pv-meta{ margin-top:.5rem; color:#444; font-size:.9rem; }
+  #printView .pv-totals{ margin-top:1rem; font-weight:600; }
+  #printView .pv-decl{ margin-top:1.5rem; font-size:.85rem; color:#333; border-top:1px solid #ccc; padding-top:1rem; }
+  @media print{
+    body.printing{ background:#fff; }
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .shift-row, .hours-pill, .check-circle circle, .check-circle path, .btn{ transition:none !important; animation:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <header class="site-header">
+    <div class="wordmark">Serendib<span>·</span>Support Services</div>
+    <h1 class="page-title">Weekly Timesheet</h1>
+    <p class="page-sub">For support workers — due every <strong>Friday</strong>. Fields marked <span style="color:var(--color-accent-dark)">*</span> are required.</p>
+  </header>
+
+  <form id="timesheetForm" novalidate>
+
+    <!-- Contractor details -->
+    <section class="card">
+      <div class="form-row form-row--2">
+        <div class="field">
+          <label for="contractorName">Your full name <span class="req">*</span></label>
+          <input class="control" type="text" id="contractorName" name="contractorName" autocomplete="name" required>
+          <div class="error-msg" data-error-for="contractorName"></div>
+        </div>
+        <div class="field">
+          <label for="weekEnding">Week ending <span class="req">*</span></label>
+          <input class="control" type="date" id="weekEnding" name="weekEnding" required>
+          <div class="error-msg" data-error-for="weekEnding"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Shifts -->
+    <section class="card">
+      <h2>Shifts this week</h2>
+      <p class="card-lead">Add one row per shift you worked.</p>
+      <div id="shiftList" style="margin-top:var(--space-5);"></div>
+      <div class="add-shift-wrap">
+        <button type="button" class="btn btn--secondary" id="addShiftBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add shift
+        </button>
+      </div>
+    </section>
+
+    <!-- Summary -->
+    <section class="card">
+      <h2>Summary</h2>
+      <div class="summary-grid" style="margin-top:var(--space-4);">
+        <div class="stat">
+          <span class="stat__value" id="totalHours">0.00</span>
+          <span class="stat__label">Total hours</span>
+        </div>
+        <div class="stat">
+          <span class="stat__value" id="totalKm">0.0</span>
+          <span class="stat__label">Approved km</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Declaration -->
+    <section class="card">
+      <h2>Declaration</h2>
+      <div class="consent">
+        <input type="checkbox" id="declaration" name="declaration" required>
+        <label for="declaration">I confirm this record is a true and accurate account of the services delivered and hours worked. <span class="req">*</span></label>
+      </div>
+      <div class="error-msg" data-error-for="declaration"></div>
+
+      <div class="form-row form-row--2" style="margin-top:var(--space-4);">
+        <div class="field">
+          <label for="signatureName">Signature (type your full name) <span class="req">*</span></label>
+          <input class="control" type="text" id="signatureName" name="signatureName" autocomplete="name" required>
+          <div class="error-msg" data-error-for="signatureName"></div>
+        </div>
+        <div class="field">
+          <label>Submission date</label>
+          <div class="control" style="display:flex;align-items:center;background:var(--color-surface-alt);color:var(--color-muted);font-family:var(--font-mono);" id="submissionDateDisplay">—</div>
+        </div>
+      </div>
+    </section>
+
+    <div id="retryBanner" class="banner banner--error" role="alert">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <div>
+        <strong>We couldn't reach the server.</strong> Please check your connection and try submitting again — nothing has been lost.
+      </div>
+    </div>
+
+    <div id="formErrorSummary" class="banner banner--error" role="alert" style="display:none;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <div>Please fix the highlighted fields before submitting.</div>
+    </div>
+
+    <button type="submit" class="btn btn--primary btn--block" id="submitBtn">
+      Submit timesheet
+    </button>
+  </form>
+
+  <!-- Success state -->
+  <section class="card" id="successView">
+    <div class="check-wrap">
+      <svg class="check-circle" viewBox="0 0 84 84">
+        <circle cx="42" cy="42" r="39"/>
+        <path d="M25 43 L37 55 L60 30"/>
+      </svg>
+    </div>
+    <h2>Timesheet submitted — thank you</h2>
+    <p>Your weekly record has been sent. You can download a copy for your own records below.</p>
+    <div class="success-actions">
+      <button type="button" class="btn btn--accent" id="downloadCopyBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><polyline points="7 11 12 16 17 11"/><path d="M5 20h14"/></svg>
+        Download a copy for your records
+      </button>
+      <button type="button" class="btn btn--ghost" id="submitAnotherBtn">Submit another timesheet</button>
+    </div>
+  </section>
+
+  <p class="footnote">Serendib Support Services — internal contractor timesheet</p>
+</div>
+
+<!-- Printable summary (shown only via print) -->
+<div id="printView">
+  <h1>Weekly Timesheet — Serendib Support Services</h1>
+  <div class="pv-meta" id="pvContractor"></div>
+  <div class="pv-meta" id="pvWeekEnding"></div>
+  <table>
+    <thead>
+      <tr><th>Participant</th><th>Date</th><th>Start</th><th>Finish</th><th>Hours</th><th>Km</th><th>Notes</th></tr>
+    </thead>
+    <tbody id="pvRows"></tbody>
+  </table>
+  <div class="pv-totals" id="pvTotals"></div>
+  <div class="pv-decl" id="pvDeclaration"></div>
+</div>
+
+<template id="shiftRowTemplate">
+  <div class="shift-row" role="group">
+    <div class="shift-row__head">
+      <span class="shift-row__title"></span>
+      <button type="button" class="btn--icon" data-action="remove" aria-label="Remove this shift">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="shift-grid">
+      <div class="field">
+        <label>Participant name <span class="req">*</span></label>
+        <input class="control" type="text" data-field="participant" required>
+        <div class="error-msg"></div>
+      </div>
+      <div class="field">
+        <label>Date of shift <span class="req">*</span></label>
+        <input class="control" type="date" data-field="date" required>
+        <div class="error-msg"></div>
+      </div>
+      <div class="field">
+        <label>Approved travel km <span class="opt">(optional)</span></label>
+        <input class="control" type="number" data-field="km" min="0" step="0.1" inputmode="decimal" placeholder="0">
+        <div class="error-msg"></div>
+      </div>
+      <div class="field">
+        <label>Start time <span class="req">*</span></label>
+        <input class="control" type="time" data-field="start" required>
+        <div class="error-msg"></div>
+      </div>
+      <div class="field">
+        <label>Finish time <span class="req">*</span></label>
+        <input class="control" type="time" data-field="finish" required>
+        <div class="error-msg"></div>
+      </div>
+      <div class="field">
+        <label>Hours (auto-calculated)</label>
+        <div class="hours-pill" data-role="hours">0.00 hrs</div>
+      </div>
+      <div class="field field--notes">
+        <label>Support notes <span class="opt">(optional)</span></label>
+        <textarea class="control" data-field="notes" placeholder="Brief note about the support provided"></textarea>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============================================================
+     CONFIG — replace before going live
+     ============================================================ */
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx3qKT9PTK-XGhitknZQTFgKT5KG6ajgWEwjmreG5SfASeObI7jwvl8Pozg54nxCAJj/exec";
+  // Fixed shared secret — must match the check in the Apps Script backend
+  const SUBMISSION_SECRET = "serendib-timesheet-2026";
+
+  /* ============================================================
+     STATE
+     ============================================================ */
+  let rowSeq = 0;
+  const shiftList = document.getElementById("shiftList");
+  const rowTemplate = document.getElementById("shiftRowTemplate");
+  const totalHoursEl = document.getElementById("totalHours");
+  const totalKmEl = document.getElementById("totalKm");
+  let lastTotalHours = 0;
+  let lastTotalKm = 0;
+
+  const submissionDateDisplay = document.getElementById("submissionDateDisplay");
+  const today = new Date();
+  const submissionDateLabel = today.toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" });
+  submissionDateDisplay.textContent = submissionDateLabel;
+
+  /* ============================================================
+     SHIFT ROWS
+     ============================================================ */
+  function computeHours(start, finish){
+    if(!start || !finish) return 0;
+    const [sh, sm] = start.split(":").map(Number);
+    const [fh, fm] = finish.split(":").map(Number);
+    let diff = (fh * 60 + fm) - (sh * 60 + sm);
+    if(diff <= 0) diff += 24 * 60; // overnight / sleepover shift
+    return diff / 60;
+  }
+
+  function renumberRows(){
+    const rows = shiftList.querySelectorAll(".shift-row");
+    rows.forEach((row, i) => {
+      row.querySelector(".shift-row__title").textContent = "Shift " + (i + 1);
+      row.setAttribute("aria-label", "Shift " + (i + 1));
+    });
+    const removeButtons = shiftList.querySelectorAll('[data-action="remove"]');
+    removeButtons.forEach(btn => { btn.disabled = rows.length <= 1; });
+  }
+
+  function addShiftRow(){
+    const frag = rowTemplate.content.cloneNode(true);
+    const row = frag.querySelector(".shift-row");
+    rowSeq += 1;
+    row.dataset.id = rowSeq;
+
+    row.classList.add("entering");
+    shiftList.appendChild(frag);
+    const appended = shiftList.lastElementChild;
+    requestAnimationFrame(() => requestAnimationFrame(() => appended.classList.remove("entering")));
+
+    const startInput = appended.querySelector('[data-field="start"]');
+    const finishInput = appended.querySelector('[data-field="finish"]');
+    const kmInput = appended.querySelector('[data-field="km"]');
+    const hoursPill = appended.querySelector('[data-role="hours"]');
+
+    function updateHours(){
+      const hrs = computeHours(startInput.value, finishInput.value);
+      hoursPill.textContent = hrs.toFixed(2) + " hrs";
+      hoursPill.classList.remove("pulse");
+      void hoursPill.offsetWidth;
+      hoursPill.classList.add("pulse");
+      updateTotals();
+    }
+
+    startInput.addEventListener("change", updateHours);
+    finishInput.addEventListener("change", updateHours);
+    kmInput.addEventListener("input", () => {
+      if(kmInput.value !== "" && Number(kmInput.value) < 0) kmInput.value = 0;
+      updateTotals();
+    });
+
+    appended.querySelector('[data-action="remove"]').addEventListener("click", () => removeShiftRow(appended));
+
+    renumberRows();
+    updateTotals();
+  }
+
+  function removeShiftRow(row){
+    if(shiftList.querySelectorAll(".shift-row").length <= 1) return;
+    row.classList.add("leaving");
+    row.addEventListener("transitionend", function handler(e){
+      if(e.propertyName !== "opacity") return;
+      row.removeEventListener("transitionend", handler);
+      row.remove();
+      renumberRows();
+      updateTotals();
+    });
+  }
+
+  function animateCount(el, from, to, decimals){
+    const duration = 380;
+    const start = performance.now();
+    function frame(now){
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      const val = from + (to - from) * eased;
+      el.textContent = val.toFixed(decimals);
+      if(t < 1) requestAnimationFrame(frame);
+      else el.textContent = to.toFixed(decimals);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  function updateTotals(){
+    let hours = 0, km = 0;
+    shiftList.querySelectorAll(".shift-row").forEach(row => {
+      const start = row.querySelector('[data-field="start"]').value;
+      const finish = row.querySelector('[data-field="finish"]').value;
+      const kmVal = row.querySelector('[data-field="km"]').value;
+      if(start && finish) hours += computeHours(start, finish);
+      if(kmVal) km += Math.max(0, Number(kmVal));
+    });
+    animateCount(totalHoursEl, lastTotalHours, hours, 2);
+    animateCount(totalKmEl, lastTotalKm, km, 1);
+    lastTotalHours = hours;
+    lastTotalKm = km;
+  }
+
+  document.getElementById("addShiftBtn").addEventListener("click", addShiftRow);
+  addShiftRow(); // start with one row
+
+  /* ============================================================
+     VALIDATION
+     ============================================================ */
+  function setFieldError(input, errorEl, message){
+    if(message){
+      input.classList.add("has-error");
+      if(errorEl) errorEl.textContent = message;
+    } else {
+      input.classList.remove("has-error");
+      if(errorEl) errorEl.textContent = "";
+    }
+    return !message;
+  }
+
+  function validateForm(){
+    let valid = true;
+
+    const contractorName = document.getElementById("contractorName");
+    valid = setFieldError(contractorName, document.querySelector('[data-error-for="contractorName"]'),
+      contractorName.value.trim() ? "" : "Please enter your full name.") && valid;
+
+    const weekEnding = document.getElementById("weekEnding");
+    valid = setFieldError(weekEnding, document.querySelector('[data-error-for="weekEnding"]'),
+      weekEnding.value ? "" : "Please select the week ending date.") && valid;
+
+    const rows = shiftList.querySelectorAll(".shift-row");
+    rows.forEach(row => {
+      const participant = row.querySelector('[data-field="participant"]');
+      const date = row.querySelector('[data-field="date"]');
+      const start = row.querySelector('[data-field="start"]');
+      const finish = row.querySelector('[data-field="finish"]');
+      const km = row.querySelector('[data-field="km"]');
+
+      valid = setFieldError(participant, participant.closest(".field").querySelector(".error-msg"),
+        participant.value.trim() ? "" : "Required.") && valid;
+      valid = setFieldError(date, date.closest(".field").querySelector(".error-msg"),
+        date.value ? "" : "Required.") && valid;
+      valid = setFieldError(start, start.closest(".field").querySelector(".error-msg"),
+        start.value ? "" : "Required.") && valid;
+      valid = setFieldError(finish, finish.closest(".field").querySelector(".error-msg"),
+        finish.value ? "" : "Required.") && valid;
+      valid = setFieldError(km, km.closest(".field").querySelector(".error-msg"),
+        (km.value !== "" && Number(km.value) < 0) ? "Cannot be negative." : "") && valid;
+    });
+
+    const declaration = document.getElementById("declaration");
+    valid = setFieldError(declaration, document.querySelector('[data-error-for="declaration"]'),
+      declaration.checked ? "" : "Please confirm the declaration.") && valid;
+
+    const signatureName = document.getElementById("signatureName");
+    valid = setFieldError(signatureName, document.querySelector('[data-error-for="signatureName"]'),
+      signatureName.value.trim() ? "" : "Please type your name as a signature.") && valid;
+
+    return valid;
+  }
+
+  function collectPayload(){
+    const shifts = [];
+    shiftList.querySelectorAll(".shift-row").forEach(row => {
+      const start = row.querySelector('[data-field="start"]').value;
+      const finish = row.querySelector('[data-field="finish"]').value;
+      shifts.push({
+        participant: row.querySelector('[data-field="participant"]').value.trim(),
+        date: row.querySelector('[data-field="date"]').value,
+        hours: Number(computeHours(start, finish).toFixed(2)),
+        km: row.querySelector('[data-field="km"]').value ? Number(row.querySelector('[data-field="km"]').value) : 0,
+        notes: row.querySelector('[data-field="notes"]').value.trim()
+      });
+    });
+
+    return {
+      contractorName: document.getElementById("contractorName").value.trim(),
+      weekEnding: document.getElementById("weekEnding").value,
+      declaration: document.getElementById("declaration").checked,
+      secret: SUBMISSION_SECRET,
+      shifts: shifts
+    };
+  }
+
+  /* ============================================================
+     SUBMIT
+     ============================================================ */
+  const form = document.getElementById("timesheetForm");
+  const submitBtn = document.getElementById("submitBtn");
+  const retryBanner = document.getElementById("retryBanner");
+  const formErrorSummary = document.getElementById("formErrorSummary");
+  let lastPayload = null;
+
+  form.addEventListener("submit", function(e){
+    e.preventDefault();
+    retryBanner.style.display = "none";
+
+    if(!validateForm()){
+      formErrorSummary.style.display = "flex";
+      const firstError = form.querySelector(".has-error");
+      if(firstError) firstError.focus();
+      return;
+    }
+    formErrorSummary.style.display = "none";
+
+    lastPayload = collectPayload();
+    submitTimesheet();
+  });
+
+  function submitTimesheet(){
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Submitting…";
+
+    fetch(APPS_SCRIPT_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(lastPayload)
+    }).then(() => {
+      showSuccess();
+    }).catch(() => {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Submit timesheet";
+      retryBanner.style.display = "flex";
+      retryBanner.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  }
+
+  function showSuccess(){
+    form.style.display = "none";
+    const successView = document.getElementById("successView");
+    successView.style.display = "block";
+    requestAnimationFrame(() => successView.classList.add("show"));
+    successView.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  document.getElementById("submitAnotherBtn").addEventListener("click", function(){
+    location.reload();
+  });
+
+  /* ============================================================
+     DOWNLOAD / PRINT COPY
+     ============================================================ */
+  document.getElementById("downloadCopyBtn").addEventListener("click", function(){
+    if(!lastPayload) return;
+
+    document.getElementById("pvContractor").innerHTML = "<strong>Contractor:</strong> " + escapeHtml(lastPayload.contractorName);
+    document.getElementById("pvWeekEnding").innerHTML = "<strong>Week ending:</strong> " + escapeHtml(lastPayload.weekEnding);
+
+    const rowsHtml = lastPayload.shifts.map(s =>
+      "<tr>" +
+        "<td>" + escapeHtml(s.participant) + "</td>" +
+        "<td>" + escapeHtml(s.date) + "</td>" +
+        "<td>" + escapeHtml(getRowTime(s, "start")) + "</td>" +
+        "<td>" + escapeHtml(getRowTime(s, "finish")) + "</td>" +
+        "<td>" + s.hours.toFixed(2) + "</td>" +
+        "<td>" + s.km.toFixed(1) + "</td>" +
+        "<td>" + escapeHtml(s.notes) + "</td>" +
+      "</tr>"
+    ).join("");
+    document.getElementById("pvRows").innerHTML = rowsHtml;
+
+    const totalHours = lastPayload.shifts.reduce((sum, s) => sum + s.hours, 0);
+    const totalKm = lastPayload.shifts.reduce((sum, s) => sum + s.km, 0);
+    document.getElementById("pvTotals").textContent =
+      "Total hours: " + totalHours.toFixed(2) + "   ·   Total approved km: " + totalKm.toFixed(1);
+
+    document.getElementById("pvDeclaration").innerHTML =
+      "I confirm this record is a true and accurate account of the services delivered and hours worked.<br>" +
+      "Signed: <strong>" + escapeHtml(document.getElementById("signatureName").value.trim()) + "</strong> &nbsp;·&nbsp; Date: " + submissionDateLabel;
+
+    document.body.classList.add("printing");
+    window.print();
+  });
+
+  window.addEventListener("afterprint", function(){
+    document.body.classList.remove("printing");
+  });
+
+  // shift rows in the DOM already carry start/finish separately; keep a lookup
+  // for the printable table since the payload only stores computed hours.
+  const shiftTimeLookup = new WeakMap();
+  function getRowTime(shift, which){
+    // Fallback: recompute from the live DOM rows by matching participant+date+hours,
+    // captured at submit time below via captureShiftTimes().
+    return shift["_" + which] || "";
+  }
+  function captureShiftTimes(payload){
+    const rows = shiftList.querySelectorAll(".shift-row");
+    rows.forEach((row, i) => {
+      if(!payload.shifts[i]) return;
+      payload.shifts[i]._start = row.querySelector('[data-field="start"]').value;
+      payload.shifts[i]._finish = row.querySelector('[data-field="finish"]').value;
+    });
+  }
+
+  const originalCollect = collectPayload;
+  collectPayload = function(){
+    const payload = originalCollect();
+    captureShiftTimes(payload);
+    return payload;
+  };
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, function(c){
+      return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c];
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
