@@ -98,14 +98,56 @@
   // already-hidden element as the resting state would animate 0 -> 0, i.e.
   // nothing would ever appear. fromTo() sidesteps that entirely.
 
+  // Wraps each word of an element's text in its own <span> (recursing into
+  // any nested elements, like the .accent span in the homepage h1, so their
+  // styling is preserved) and returns the spans in reading order, so they
+  // can be staggered individually rather than fading the heading in as one
+  // block. Only ever called when GSAP + motion are confirmed available.
+  function splitIntoWords(el) {
+    var words = [];
+    function walk(node) {
+      var child = node.firstChild;
+      while (child) {
+        var next = child.nextSibling; // capture before replaceChild mutates siblings
+        if (child.nodeType === Node.TEXT_NODE) {
+          var frag = document.createDocumentFragment();
+          child.textContent.split(/(\s+)/).forEach(function (part) {
+            if (part === "") return;
+            if (/^\s+$/.test(part)) {
+              frag.appendChild(document.createTextNode(part));
+            } else {
+              var span = document.createElement("span");
+              span.className = "word-reveal__word";
+              span.textContent = part;
+              frag.appendChild(span);
+              words.push(span);
+            }
+          });
+          node.replaceChild(frag, child);
+        } else if (child.nodeType === Node.ELEMENT_NODE) {
+          walk(child);
+        }
+        child = next;
+      }
+    }
+    walk(el);
+    return words;
+  }
+
   // ---- Page-load entrance: hero text/CTA stagger + hero media fade-in ----
   function animateHero() {
     var hero = document.querySelector('[data-animate="hero"]');
     if (hero) {
-      var items = hero.children;
-      if (items.length) {
+      var allItems = Array.prototype.slice.call(hero.children);
+      var heading = hero.querySelector("h1");
+      var headingIndex = heading ? allItems.indexOf(heading) : -1;
+      var restItems = heading
+        ? allItems.filter(function (el) { return el !== heading; })
+        : allItems;
+
+      if (restItems.length) {
         gsap.fromTo(
-          items,
+          restItems,
           { opacity: 0, y: DISTANCE },
           {
             opacity: 1,
@@ -116,6 +158,33 @@
             delay: 0.2,
           }
         );
+      }
+
+      // The heading gets its own word-by-word reveal instead of fading in
+      // as one block, timed to land at the same point it would have
+      // reached in the sequence above.
+      if (heading) {
+        var words = splitIntoWords(heading);
+        var headingDelay = 0.2 + 0.16 * (headingIndex >= 0 ? headingIndex : 1);
+        if (words.length) {
+          gsap.fromTo(
+            words,
+            { opacity: 0, y: DISTANCE * 0.6 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: DUR_BASE * 0.7,
+              ease: EASE_STANDARD,
+              stagger: 0.035,
+              delay: headingDelay,
+            }
+          );
+        }
+        // The heading container itself was pre-hidden by the .js-anim CSS
+        // hook (it's a direct child of [data-animate="hero"]); now that its
+        // words carry their own hidden state, reveal the container so the
+        // words are visible while animating in.
+        gsap.set(heading, { opacity: 1 });
       }
     }
 
@@ -343,6 +412,11 @@
 
   function onScroll() {
     var y = Math.max(0, window.scrollY); // clamp iOS's negative overscroll/rubber-band values
+
+    // Runs at every scroll position, mobile and desktop alike — independent
+    // of the hide/show logic below, which is mobile-only.
+    header.classList.toggle("site-header--scrolled", y > 4);
+
     var delta = y - lastY;
     lastY = y;
 

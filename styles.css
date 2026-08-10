@@ -1067,8 +1067,11 @@ fieldset legend {
   background: rgba(250,246,240,0.88);
   backdrop-filter: saturate(140%) blur(10px);
   border-bottom: 1px solid var(--color-border);
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+/* A soft lift once the page has scrolled at all — mobile and desktop alike. */
+.site-header--scrolled { box-shadow: var(--shadow-sm); }
+
 /* Mobile only: header (and the open mobile menu, which hangs off it) slides
    out of view on scroll-down, and back in on scroll-up — see script.js. */
 .site-header--hidden { transform: translateY(-100%); }
@@ -1357,3 +1360,34 @@ fieldset legend {
     transform: none !important;
   }
 }
+
+/* --------------------------------------------------------------------------
+   28. CROSS-PAGE VIEW TRANSITIONS
+   --------------------------------------------------------------------------
+   Opts every same-origin navigation into the browser's native cross-fade
+   between pages. Pure CSS, no JS: unsupported browsers just ignore the
+   @view-transition rule and get the normal instant navigation they always
+   had — this can never break anything, only enhance it where supported.
+   -------------------------------------------------------------------------- */
+@view-transition {
+  navigation: auto;
+}
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: var(--transition-slow);
+    animation-timing-function: cubic-bezier(0.33, 1, 0.68, 1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* Per-word hero headline reveal — spans are created at runtime by
+   script.js (splitIntoWords) only when GSAP + motion are available; a
+   plain heading with no spans is left completely alone otherwise. */
+.word-reveal__word { display: inline-block; }
