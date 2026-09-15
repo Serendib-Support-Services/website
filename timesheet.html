@@ -217,10 +217,35 @@
 
   .field-pair{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:var(--space-3); min-width:0; }
   @media (max-width:599px){ .field-pair{ grid-template-columns:minmax(0,1fr); } }
-  input.control[type="date"], input.control[type="time"]{
-    padding-left:.6rem; padding-right:.5rem;
+  /* Native date/time inputs render inconsistently across iOS browsers
+     (all WebKit under the hood) - border/padding/icon can be ignored
+     entirely regardless of CSS. Instead of styling the native control,
+     the real input is made fully invisible but stays on top and
+     functional (tap still opens the native picker); a plain div
+     underneath renders the actual visible box, fully our own CSS. */
+  .dt-field{ position:relative; min-width:0; }
+  .dt-input{
+    position:absolute; inset:0; width:100%; height:100%;
+    margin:0; padding:0; border:0; opacity:0; cursor:pointer; z-index:1;
     -webkit-appearance:none; appearance:none;
   }
+  .dt-display{
+    width:100%; min-height:48px; padding:.7rem .9rem; box-sizing:border-box;
+    font-family:var(--font-body); font-size:var(--fs-base); color:var(--color-text);
+    background:var(--color-bg); border:1.5px solid var(--color-border-strong);
+    border-radius:var(--radius-md);
+    display:flex; align-items:center; justify-content:space-between; gap:.5em;
+    transition:border-color var(--transition), box-shadow var(--transition), background var(--transition);
+  }
+  .dt-display__text.placeholder{ color:var(--color-faint); }
+  .dt-icon{ width:19px; height:19px; flex-shrink:0; color:var(--color-muted); }
+  .dt-input:hover ~ .dt-display{ border-color:var(--color-primary-tint); }
+  .dt-input:focus ~ .dt-display{
+    border-color:var(--color-primary); background:var(--color-surface);
+    box-shadow:0 0 0 4px rgba(47,110,91,.16);
+  }
+  .dt-display.has-error{ border-color:var(--color-error); }
+  .dt-input:focus ~ .dt-display.has-error{ box-shadow:0 0 0 4px rgba(188,58,43,.14); }
 
   .hours-pill{
     display:inline-flex; align-items:center; justify-content:center; gap:.4em;
@@ -332,7 +357,13 @@
         </div>
         <div class="field">
           <label for="weekEnding">Week ending <span class="req">*</span></label>
-          <input class="control" type="date" id="weekEnding" name="weekEnding" required>
+          <div class="dt-field">
+            <input class="dt-input" type="date" id="weekEnding" name="weekEnding" required>
+            <div class="dt-display" aria-hidden="true">
+              <span class="dt-display__text placeholder" data-role="dt-text">dd/mm/yyyy</span>
+              <svg class="dt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+          </div>
           <div class="error-msg" data-error-for="weekEnding"></div>
         </div>
       </div>
@@ -480,7 +511,13 @@
     <div class="shift-grid">
       <div class="field">
         <label>Date of shift <span class="req">*</span></label>
-        <input class="control" type="date" data-field="date" required>
+        <div class="dt-field">
+          <input class="dt-input" type="date" data-field="date" required>
+          <div class="dt-display" aria-hidden="true">
+            <span class="dt-display__text placeholder" data-role="dt-text">dd/mm/yyyy</span>
+            <svg class="dt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+        </div>
         <div class="error-msg"></div>
       </div>
       <div class="field">
@@ -494,12 +531,24 @@
       <div class="field-pair">
         <div class="field">
           <label>Start time <span class="req">*</span></label>
-          <input class="control" type="time" data-field="start" step="900" required>
+          <div class="dt-field">
+            <input class="dt-input" type="time" data-field="start" step="900" required>
+            <div class="dt-display" aria-hidden="true">
+              <span class="dt-display__text placeholder" data-role="dt-text">--:-- --</span>
+              <svg class="dt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
+            </div>
+          </div>
           <div class="error-msg"></div>
         </div>
         <div class="field">
           <label>Finish time <span class="req">*</span></label>
-          <input class="control" type="time" data-field="finish" step="900" required>
+          <div class="dt-field">
+            <input class="dt-input" type="time" data-field="finish" step="900" required>
+            <div class="dt-display" aria-hidden="true">
+              <span class="dt-display__text placeholder" data-role="dt-text">--:-- --</span>
+              <svg class="dt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
+            </div>
+          </div>
           <div class="error-msg"></div>
         </div>
       </div>
@@ -570,6 +619,38 @@
     return diff / 60;
   }
 
+  /* Native date/time inputs render inconsistently across iOS browsers.
+     Each .dt-input is made invisible but stays functional; this keeps
+     its sibling .dt-display text in sync so the visible box is always
+     drawn by our own CSS instead of the browser's native widget. */
+  function formatDateDisplay(value){
+    const parts = value ? value.split("-") : [];
+    if(parts.length !== 3) return "";
+    return parts[2] + "/" + parts[1] + "/" + parts[0];
+  }
+
+  function formatTimeDisplay(value){
+    if(!value) return "";
+    const [hStr, mStr] = value.split(":");
+    let h = Number(hStr), m = Number(mStr);
+    if(isNaN(h) || isNaN(m)) return "";
+    const ampm = h < 12 ? "am" : "pm";
+    let h12 = h % 12; if(h12 === 0) h12 = 12;
+    return String(h12).padStart(2, "0") + ":" + String(m).padStart(2, "0") + " " + ampm;
+  }
+
+  function bindDtDisplay(input, formatter, placeholderText){
+    const textEl = input.nextElementSibling.querySelector('[data-role="dt-text"]');
+    function sync(){
+      const formatted = formatter(input.value);
+      textEl.textContent = formatted || placeholderText;
+      textEl.classList.toggle("placeholder", !formatted);
+    }
+    input.addEventListener("input", sync);
+    input.addEventListener("change", sync);
+    sync();
+  }
+
   function shiftEntrySummary(entry){
     const dateVal = entry.querySelector('[data-field="date"]').value;
     const shiftType = entry.querySelector('[data-field="shiftType"]').value;
@@ -636,10 +717,15 @@
       if(e.key === "Enter" || e.key === " "){ e.preventDefault(); toggle(); }
     });
 
+    const dateInput = appended.querySelector('[data-field="date"]');
     const startInput = appended.querySelector('[data-field="start"]');
     const finishInput = appended.querySelector('[data-field="finish"]');
     const kmInput = appended.querySelector('[data-field="km"]');
     const hoursPill = appended.querySelector('[data-role="hours"]');
+
+    bindDtDisplay(dateInput, formatDateDisplay, "dd/mm/yyyy");
+    bindDtDisplay(startInput, formatTimeDisplay, "--:-- --");
+    bindDtDisplay(finishInput, formatTimeDisplay, "--:-- --");
 
     function updateHours(){
       const hrs = computeHours(startInput.value, finishInput.value);
@@ -759,15 +845,18 @@
   document.getElementById("addParticipantBtn").addEventListener("click", addParticipant);
   addParticipant(); // start with one participant
 
+  bindDtDisplay(document.getElementById("weekEnding"), formatDateDisplay, "dd/mm/yyyy");
+
   /* ============================================================
      VALIDATION
      ============================================================ */
   function setFieldError(input, errorEl, message){
+    const target = input.classList.contains("dt-input") ? input.nextElementSibling : input;
     if(message){
-      input.classList.add("has-error");
+      target.classList.add("has-error");
       if(errorEl) errorEl.textContent = message;
     } else {
-      input.classList.remove("has-error");
+      target.classList.remove("has-error");
       if(errorEl) errorEl.textContent = "";
     }
     return !message;
