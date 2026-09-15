@@ -217,7 +217,10 @@
 
   .field-pair{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:var(--space-3); min-width:0; }
   @media (max-width:599px){ .field-pair{ grid-template-columns:minmax(0,1fr); } }
-  input.control[type="date"], input.control[type="time"]{ padding-left:.6rem; padding-right:.5rem; }
+  input.control[type="date"], input.control[type="time"]{
+    padding-left:.6rem; padding-right:.5rem;
+    -webkit-appearance:none; appearance:none;
+  }
 
   .hours-pill{
     display:inline-flex; align-items:center; justify-content:center; gap:.4em;
