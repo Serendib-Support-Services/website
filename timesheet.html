@@ -38,9 +38,9 @@
   }
 
   *,*::before,*::after{ box-sizing:border-box; }
-  html{ -webkit-text-size-adjust:100%; }
+  html{ -webkit-text-size-adjust:100%; overflow-x:hidden; }
   body{
-    margin:0; background:var(--color-bg); color:var(--color-text);
+    margin:0; background:var(--color-bg); color:var(--color-text); overflow-x:hidden;
     font-family:var(--font-body); font-size:var(--fs-base); line-height:1.6;
     -webkit-font-smoothing:antialiased;
   }
@@ -206,6 +206,8 @@
   .shift-grid .field--notes{ grid-column:1 / -1; }
 
   .field-pair{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:var(--space-3); min-width:0; }
+  @media (max-width:479px){ .field-pair{ grid-template-columns:minmax(0,1fr); } }
+  input.control[type="date"], input.control[type="time"]{ padding-left:.6rem; padding-right:.5rem; }
 
   .hours-pill{
     display:inline-flex; align-items:center; justify-content:center; gap:.4em;
