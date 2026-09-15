@@ -166,16 +166,16 @@
     border-radius:var(--radius-lg); padding:clamp(1rem,3vw,1.4rem);
     display:grid; gap:var(--space-4); min-width:0;
     opacity:1; transform:translateY(0) scale(1);
-    max-height:2600px;
+    max-height:3200px;
     transition:opacity var(--transition-slow) var(--ease-soft), transform var(--transition-slow) var(--ease-soft),
                max-height var(--transition-slow) var(--ease-soft), padding var(--transition-slow) var(--ease-soft),
                margin var(--transition-slow) var(--ease-soft), border-color var(--transition-slow);
+    overflow:hidden;
   }
   .participant-group.entering{ opacity:0; transform:translateY(-10px) scale(.98); }
   .participant-group.leaving{
     opacity:0; transform:translateY(-8px) scale(.97);
     max-height:0; padding-top:0; padding-bottom:0; margin-bottom:calc(-1 * var(--space-5)); border-color:transparent;
-    overflow:hidden;
   }
   .participant-group__head{ display:flex; align-items:center; justify-content:space-between; gap:var(--space-3); }
   .participant-group__title{ font-family:var(--font-heading); font-weight:var(--fw-extra); font-size:var(--fs-sm); color:var(--color-primary-darker); text-transform:uppercase; letter-spacing:.06em; }
@@ -186,16 +186,16 @@
     border-radius:var(--radius-md); padding:clamp(.9rem,2.5vw,1.15rem);
     display:grid; gap:var(--space-4); min-width:0;
     opacity:1; transform:translateY(0) scale(1);
-    max-height:900px;
+    max-height:1600px;
     transition:opacity var(--transition-slow) var(--ease-soft), transform var(--transition-slow) var(--ease-soft),
                max-height var(--transition-slow) var(--ease-soft), padding var(--transition-slow) var(--ease-soft),
                margin var(--transition-slow) var(--ease-soft), border-color var(--transition-slow);
+    overflow:hidden;
   }
   .shift-entry.entering{ opacity:0; transform:translateY(-8px) scale(.98); }
   .shift-entry.leaving{
     opacity:0; transform:translateY(-6px) scale(.97);
     max-height:0; padding-top:0; padding-bottom:0; margin-bottom:calc(-1 * var(--space-3)); border-color:transparent;
-    overflow:hidden;
   }
   .shift-entry.collapsed{ background:var(--color-surface-alt); }
   .shift-entry.collapsed .shift-grid{ display:none; }
