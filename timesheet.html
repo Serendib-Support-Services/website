@@ -197,8 +197,18 @@
     opacity:0; transform:translateY(-6px) scale(.97);
     max-height:0; padding-top:0; padding-bottom:0; margin-bottom:calc(-1 * var(--space-3)); border-color:transparent;
   }
-  .shift-entry__head{ display:flex; align-items:center; justify-content:space-between; gap:var(--space-3); }
+  .shift-entry.collapsed{ background:var(--color-surface-alt); }
+  .shift-entry.collapsed .shift-grid{ display:none; }
+  .shift-entry__head{
+    display:flex; align-items:center; justify-content:space-between; gap:var(--space-3);
+    cursor:pointer; user-select:none; border-radius:var(--radius-sm);
+  }
+  .shift-entry__head-left{ display:flex; align-items:center; gap:.5em; min-width:0; }
   .shift-entry__title{ font-family:var(--font-heading); font-weight:var(--fw-bold); font-size:var(--fs-xs); color:var(--color-muted); text-transform:uppercase; letter-spacing:.06em; }
+  .shift-chevron{ width:16px; height:16px; flex-shrink:0; color:var(--color-muted); transition:transform var(--transition); }
+  .shift-entry.collapsed .shift-chevron{ transform:rotate(-90deg); }
+  .shift-summary{ display:none; font-size:var(--fs-sm); color:var(--color-muted); }
+  .shift-entry.collapsed .shift-summary{ display:block; }
 
   .shift-grid{ display:grid; gap:var(--space-4); grid-template-columns:minmax(0,1fr); }
   @media (min-width:600px){ .shift-grid{ grid-template-columns:minmax(0,1fr) minmax(0,1fr); } }
@@ -454,12 +464,16 @@
 
 <template id="shiftEntryTemplate">
   <div class="shift-entry" role="group">
-    <div class="shift-entry__head">
-      <span class="shift-entry__title"></span>
+    <div class="shift-entry__head" data-action="toggle-shift" role="button" tabindex="0" aria-expanded="true">
+      <span class="shift-entry__head-left">
+        <svg class="shift-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        <span class="shift-entry__title"></span>
+      </span>
       <button type="button" class="btn--icon btn--icon-sm" data-action="remove-shift" aria-label="Remove this shift">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
+    <div class="shift-summary" data-role="summary"></div>
     <div class="shift-grid">
       <div class="field">
         <label>Date of shift <span class="req">*</span></label>
@@ -553,6 +567,31 @@
     return diff / 60;
   }
 
+  function shiftEntrySummary(entry){
+    const dateVal = entry.querySelector('[data-field="date"]').value;
+    const shiftType = entry.querySelector('[data-field="shiftType"]').value;
+    const start = entry.querySelector('[data-field="start"]').value;
+    const finish = entry.querySelector('[data-field="finish"]').value;
+
+    const parts = [];
+    if(dateVal){
+      const d = new Date(dateVal + "T00:00:00");
+      if(!isNaN(d)) parts.push(d.toLocaleDateString("en-AU", { weekday:"short", day:"numeric", month:"short" }));
+    }
+    if(start && finish){
+      parts.push(start + "–" + finish);
+      parts.push(computeHours(start, finish).toFixed(2) + " hrs");
+    }
+    if(shiftType === "sleepover") parts.push("Sleepover");
+    return parts.length ? parts.join(" · ") : "No details entered yet";
+  }
+
+  function setShiftCollapsed(entry, collapsed){
+    if(collapsed) entry.querySelector('[data-role="summary"]').textContent = shiftEntrySummary(entry);
+    entry.classList.toggle("collapsed", collapsed);
+    entry.querySelector('[data-action="toggle-shift"]').setAttribute("aria-expanded", String(!collapsed));
+  }
+
   function renumberAll(){
     const groups = participantList.querySelectorAll(".participant-group");
     groups.forEach((group, gi) => {
@@ -578,9 +617,21 @@
 
     entry.classList.add("entering");
     const container = groupEl.querySelector('[data-role="shift-entries"]');
+    container.querySelectorAll(".shift-entry:not(.collapsed)").forEach(existing => setShiftCollapsed(existing, true));
     container.appendChild(frag);
     const appended = container.lastElementChild;
     requestAnimationFrame(() => requestAnimationFrame(() => appended.classList.remove("entering")));
+
+    const head = appended.querySelector('[data-action="toggle-shift"]');
+    const toggle = () => setShiftCollapsed(appended, !appended.classList.contains("collapsed"));
+    head.addEventListener("click", (e) => {
+      if(e.target.closest('[data-action="remove-shift"]')) return;
+      toggle();
+    });
+    head.addEventListener("keydown", (e) => {
+      if(e.target.closest('[data-action="remove-shift"]')) return;
+      if(e.key === "Enter" || e.key === " "){ e.preventDefault(); toggle(); }
+    });
 
     const startInput = appended.querySelector('[data-field="start"]');
     const finishInput = appended.querySelector('[data-field="finish"]');
@@ -743,16 +794,20 @@
         const km = entry.querySelector('[data-field="km"]');
         const notes = entry.querySelector('[data-field="notes"]');
 
-        valid = setFieldError(date, date.closest(".field").querySelector(".error-msg"),
-          date.value ? "" : "Required.") && valid;
-        valid = setFieldError(start, start.closest(".field").querySelector(".error-msg"),
-          start.value ? "" : "Required.") && valid;
-        valid = setFieldError(finish, finish.closest(".field").querySelector(".error-msg"),
-          finish.value ? "" : "Required.") && valid;
-        valid = setFieldError(km, km.closest(".field").querySelector(".error-msg"),
-          (km.value !== "" && Number(km.value) < 0) ? "Cannot be negative." : "") && valid;
-        valid = setFieldError(notes, notes.closest(".field").querySelector(".error-msg"),
-          notes.value.trim() ? "" : "Required.") && valid;
+        let entryValid = true;
+        entryValid = setFieldError(date, date.closest(".field").querySelector(".error-msg"),
+          date.value ? "" : "Required.") && entryValid;
+        entryValid = setFieldError(start, start.closest(".field").querySelector(".error-msg"),
+          start.value ? "" : "Required.") && entryValid;
+        entryValid = setFieldError(finish, finish.closest(".field").querySelector(".error-msg"),
+          finish.value ? "" : "Required.") && entryValid;
+        entryValid = setFieldError(km, km.closest(".field").querySelector(".error-msg"),
+          (km.value !== "" && Number(km.value) < 0) ? "Cannot be negative." : "") && entryValid;
+        entryValid = setFieldError(notes, notes.closest(".field").querySelector(".error-msg"),
+          notes.value.trim() ? "" : "Required.") && entryValid;
+
+        if(!entryValid && entry.classList.contains("collapsed")) setShiftCollapsed(entry, false);
+        valid = entryValid && valid;
       });
     });
 
