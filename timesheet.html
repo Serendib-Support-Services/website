@@ -676,6 +676,22 @@
     entry.querySelector('[data-action="toggle-shift"]').setAttribute("aria-expanded", String(!collapsed));
   }
 
+  function removeAfterTransition(el, cleanup){
+    let done = false;
+    function finish(){
+      if(done) return;
+      done = true;
+      el.removeEventListener("transitionend", onEnd);
+      cleanup();
+    }
+    function onEnd(e){
+      if(e.propertyName !== "opacity") return;
+      finish();
+    }
+    el.addEventListener("transitionend", onEnd);
+    setTimeout(finish, 320); // fallback: transitionend never fires under prefers-reduced-motion
+  }
+
   function renumberAll(){
     const groups = participantList.querySelectorAll(".participant-group");
     groups.forEach((group, gi) => {
@@ -752,9 +768,7 @@
   function removeShiftEntry(groupEl, entry){
     if(groupEl.querySelectorAll(".shift-entry").length <= 1) return;
     entry.classList.add("leaving");
-    entry.addEventListener("transitionend", function handler(e){
-      if(e.propertyName !== "opacity") return;
-      entry.removeEventListener("transitionend", handler);
+    removeAfterTransition(entry, () => {
       entry.remove();
       renumberAll();
       updateTotals();
@@ -781,9 +795,7 @@
   function removeParticipant(group){
     if(participantList.querySelectorAll(".participant-group").length <= 1) return;
     group.classList.add("leaving");
-    group.addEventListener("transitionend", function handler(e){
-      if(e.propertyName !== "opacity") return;
-      group.removeEventListener("transitionend", handler);
+    removeAfterTransition(group, () => {
       group.remove();
       renumberAll();
       updateTotals();
