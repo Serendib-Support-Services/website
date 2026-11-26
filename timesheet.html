@@ -245,8 +245,35 @@
     border-color:var(--color-primary); background:var(--color-surface);
     box-shadow:0 0 0 4px rgba(47,110,91,.16);
   }
+  /* Time fields use our own picker: browser clocks can't be limited to
+     15-minute steps reliably. */
+  .time-trigger{ line-height:inherit; text-align:left; cursor:pointer; }
+  .time-trigger:hover{ border-color:var(--color-primary-tint); }
+  .time-trigger[aria-expanded="true"]{ border-color:var(--color-primary); background:var(--color-surface); }
   .dt-display.has-error{ border-color:var(--color-error); }
   .dt-input:focus ~ .dt-display.has-error{ box-shadow:0 0 0 4px rgba(188,58,43,.14); }
+
+  .time-pop{
+    position:absolute; top:calc(100% + 6px); left:0; z-index:10;
+    width:224px; padding:var(--space-2);
+    display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:var(--space-2);
+    background:var(--color-surface); border:1px solid var(--color-primary-tint);
+    border-radius:var(--radius-md); box-shadow:var(--shadow-lg);
+    animation:popover-in 180ms var(--ease-soft);
+  }
+  .time-pop[hidden]{ display:none; }
+  .field-pair > .field:last-child .time-pop{ left:auto; right:0; }
+  .time-pop__col{ position:relative; display:grid; gap:2px; align-content:start; max-height:216px; overflow-y:auto; }
+  .time-pop button{
+    min-height:40px; border:0; border-radius:var(--radius-sm); cursor:pointer;
+    font-family:var(--font-mono); font-size:var(--fs-sm); color:var(--color-text); background:transparent;
+  }
+  .time-pop button:hover{ background:var(--color-primary-soft); }
+  .time-pop button[aria-pressed="true"]{ background:var(--color-primary); color:#fff; }
+  .time-pop button:focus-visible{ outline-offset:-3px; }
+  .time-pop .time-pop__done{ grid-column:1 / -1; background:var(--color-primary-soft); color:var(--color-primary-darker); font-family:var(--font-heading); font-weight:var(--fw-bold); }
+  /* let the open picker spill past its card and sit above what follows */
+  .participant-group.picker-open, .shift-entry.picker-open{ position:relative; z-index:20; overflow:visible; }
 
   .hours-pill{
     display:inline-flex; align-items:center; justify-content:center; gap:.4em;
@@ -533,22 +560,24 @@
         <div class="field">
           <label>Start time <span class="req">*</span></label>
           <div class="dt-field">
-            <input class="dt-input" type="time" data-field="start" step="900" required>
-            <div class="dt-display" aria-hidden="true">
+            <input type="hidden" data-field="start">
+            <button type="button" class="dt-display time-trigger" data-label="Start time" aria-haspopup="dialog" aria-expanded="false">
               <span class="dt-display__text placeholder" data-role="dt-text">--:-- --</span>
-              <svg class="dt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
-            </div>
+              <svg class="dt-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
+            </button>
+            <div class="time-pop" role="dialog" aria-label="Choose start time" hidden></div>
           </div>
           <div class="error-msg"></div>
         </div>
         <div class="field">
           <label>Finish time <span class="req">*</span></label>
           <div class="dt-field">
-            <input class="dt-input" type="time" data-field="finish" step="900" required>
-            <div class="dt-display" aria-hidden="true">
+            <input type="hidden" data-field="finish">
+            <button type="button" class="dt-display time-trigger" data-label="Finish time" aria-haspopup="dialog" aria-expanded="false">
               <span class="dt-display__text placeholder" data-role="dt-text">--:-- --</span>
-              <svg class="dt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
-            </div>
+              <svg class="dt-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
+            </button>
+            <div class="time-pop" role="dialog" aria-label="Choose finish time" hidden></div>
           </div>
           <div class="error-msg"></div>
         </div>
@@ -649,15 +678,121 @@
     }
     input.addEventListener("input", sync);
     input.addEventListener("change", sync);
-    /* Laptop browsers only open the calendar/clock from the small native
-       icon, which is invisible here - so open it from a click anywhere on
-       the field. Touch devices already do this themselves. */
+    /* Date fields: laptop browsers only open the calendar from the small
+       native icon, which is invisible here - so open it from a click
+       anywhere on the field. Touch devices already do this themselves. */
     input.addEventListener("click", function(){
       if(!window.matchMedia("(pointer: fine)").matches || typeof input.showPicker !== "function") return;
       try{ input.showPicker(); }catch(err){ /* unsupported: the native behaviour still applies */ }
     });
     sync();
   }
+
+  /* ============================================================
+     TIME PICKER — hour / minute / am-pm, 15-minute steps only.
+     The chosen time is stored as "HH:MM" in the field's hidden input.
+     ============================================================ */
+  const TIME_COLUMNS = {
+    h: Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, "0")),
+    m: ["00", "15", "30", "45"],
+    p: ["am", "pm"]
+  };
+  let closeOpenTimePicker = null;
+
+  function bindTimePicker(input){
+    const field = input.closest(".dt-field");
+    const trigger = field.querySelector(".time-trigger");
+    const pop = field.querySelector(".time-pop");
+    const containers = [field.closest(".shift-entry"), field.closest(".participant-group")];
+    let parts = {};
+    let startedEmpty = true;
+
+    Object.keys(TIME_COLUMNS).forEach(key => {
+      const column = document.createElement("div");
+      column.className = "time-pop__col";
+      TIME_COLUMNS[key].forEach(value => {
+        const option = document.createElement("button");
+        option.type = "button";
+        option.textContent = value;
+        option.dataset.key = key;
+        option.dataset.value = value;
+        column.appendChild(option);
+      });
+      pop.appendChild(column);
+    });
+    const done = document.createElement("button");
+    done.type = "button";
+    done.className = "time-pop__done";
+    done.textContent = "Done";
+    pop.appendChild(done);
+
+    function label(){
+      trigger.setAttribute("aria-label", trigger.dataset.label + ": " + (formatTimeDisplay(input.value) || "not set"));
+    }
+    function paint(){
+      pop.querySelectorAll("[data-key]").forEach(option => {
+        option.setAttribute("aria-pressed", String(parts[option.dataset.key] === option.dataset.value));
+      });
+    }
+    function close(){
+      pop.hidden = true;
+      trigger.setAttribute("aria-expanded", "false");
+      containers.forEach(el => el.classList.remove("picker-open"));
+      closeOpenTimePicker = null;
+    }
+    function closeAndRefocus(){
+      close();
+      trigger.focus();
+    }
+    function open(){
+      if(closeOpenTimePicker) closeOpenTimePicker();
+      startedEmpty = !input.value;
+      parts = {};
+      if(input.value){
+        const [h, m] = input.value.split(":").map(Number);
+        parts = { h: String(h % 12 || 12).padStart(2, "0"), m: String(m).padStart(2, "0"), p: h < 12 ? "am" : "pm" };
+      }
+      paint();
+      pop.hidden = false;
+      trigger.setAttribute("aria-expanded", "true");
+      containers.forEach(el => el.classList.add("picker-open"));
+      const hours = pop.querySelector(".time-pop__col");
+      const chosen = hours.querySelector('[aria-pressed="true"]');
+      hours.scrollTop = chosen ? chosen.offsetTop - 84 : 0;
+      closeOpenTimePicker = close;
+    }
+
+    trigger.addEventListener("click", () => { if(pop.hidden) open(); else close(); });
+    done.addEventListener("click", closeAndRefocus);
+    pop.addEventListener("click", e => {
+      const option = e.target.closest("[data-key]");
+      if(!option) return;
+      parts[option.dataset.key] = option.dataset.value;
+      paint();
+      if(!(parts.h && parts.m && parts.p)) return; // wait until all three are chosen
+      const hour = (Number(parts.h) % 12) + (parts.p === "pm" ? 12 : 0);
+      input.value = String(hour).padStart(2, "0") + ":" + parts.m;
+      input.dispatchEvent(new Event("change"));
+      label();
+      if(startedEmpty) closeAndRefocus();
+    });
+    field.addEventListener("focusout", e => {
+      if(!pop.hidden && e.relatedTarget && !field.contains(e.relatedTarget)) close();
+    });
+    field.addEventListener("keydown", e => {
+      if(e.key === "Escape" && !pop.hidden) closeAndRefocus();
+    });
+    label();
+  }
+
+  document.addEventListener("click", function(e){
+    if(!closeOpenTimePicker) return;
+    const field = e.target.closest(".dt-field");
+    if(!field || field.querySelector(".time-pop:not([hidden])") === null) closeOpenTimePicker();
+  });
+  document.addEventListener("keydown", function(e){
+    if(e.key === "Escape" && closeOpenTimePicker) closeOpenTimePicker();
+  });
 
   function shiftEntrySummary(entry){
     const dateVal = entry.querySelector('[data-field="date"]').value;
@@ -750,6 +885,8 @@
     bindDtDisplay(dateInput, formatDateDisplay, "dd/mm/yyyy");
     bindDtDisplay(startInput, formatTimeDisplay, "--:-- --");
     bindDtDisplay(finishInput, formatTimeDisplay, "--:-- --");
+    bindTimePicker(startInput);
+    bindTimePicker(finishInput);
 
     function updateHours(){
       const hrs = computeHours(startInput.value, finishInput.value);
@@ -871,7 +1008,9 @@
      VALIDATION
      ============================================================ */
   function setFieldError(input, errorEl, message){
-    const target = input.classList.contains("dt-input") ? input.nextElementSibling : input;
+    // date and time fields draw their visible box in the element after the input
+    const next = input.nextElementSibling;
+    const target = next && next.classList.contains("dt-display") ? next : input;
     if(message){
       target.classList.add("has-error");
       if(errorEl) errorEl.textContent = message;
