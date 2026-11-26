@@ -211,8 +211,8 @@
   .shift-entry.collapsed .shift-summary{ display:block; }
 
   .shift-grid{ display:grid; gap:var(--space-4); grid-template-columns:minmax(0,1fr); min-width:0; }
-  @media (min-width:600px){ .shift-grid{ grid-template-columns:minmax(0,1fr) minmax(0,1fr); } }
-  @media (min-width:820px){ .shift-grid{ grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr); } }
+  /* two columns at most: a third leaves the paired time fields too narrow to read */
+  @media (min-width:760px){ .shift-grid{ grid-template-columns:minmax(0,1fr) minmax(0,1fr); } }
   .shift-grid .field--notes{ grid-column:1 / -1; }
 
   .field-pair{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:var(--space-3); min-width:0; }
@@ -237,6 +237,7 @@
     display:flex; align-items:center; justify-content:space-between; gap:.5em;
     transition:border-color var(--transition), box-shadow var(--transition), background var(--transition);
   }
+  .dt-display__text{ white-space:nowrap; }
   .dt-display__text.placeholder{ color:var(--color-faint); }
   .dt-icon{ width:19px; height:19px; flex-shrink:0; color:var(--color-muted); }
   .dt-input:hover ~ .dt-display{ border-color:var(--color-primary-tint); }
@@ -648,6 +649,13 @@
     }
     input.addEventListener("input", sync);
     input.addEventListener("change", sync);
+    /* Laptop browsers only open the calendar/clock from the small native
+       icon, which is invisible here - so open it from a click anywhere on
+       the field. Touch devices already do this themselves. */
+    input.addEventListener("click", function(){
+      if(!window.matchMedia("(pointer: fine)").matches || typeof input.showPicker !== "function") return;
+      try{ input.showPicker(); }catch(err){ /* unsupported: the native behaviour still applies */ }
+    });
     sync();
   }
 
